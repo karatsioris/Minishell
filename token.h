@@ -11,7 +11,6 @@ typedef	enum e_class
 typedef	enum e_kind
 {
 	OP_PIPE, // |
-    OP_LOGIC, // && and ||
     OP_REDIRECT, // < , > , << , >>
     OP_GROUP, // ( and )
 } t_operator_kind;
@@ -33,4 +32,5 @@ typedef struct s_token
 
 t_token    *tokenize(const char *input, int *token_count);
 void 		free_tokens(t_token *tokens, int used);
+const t_token_descriptor  *match_operator(const char *input);
 # endif

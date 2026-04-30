@@ -28,6 +28,29 @@ int	evaluate_input(char	*line, t_shell	*shell)
 	return (0);
 }
 
+// char	*token_type_to_string(t_token token)
+// {
+// 	if(token.type == 0)
+// 		return ("WORD");
+// 	else if(token.type == 1)
+// 		return ("OPERATOR");
+// 	else if(token.type == 2)
+// 		return ("EOF");
+// 	return (NULL);
+// }
+
+
+char	*token_type_to_string(t_token token)
+{
+	if (token.type == TOKEN_WORD)
+		return ("WORD");
+	else if (token.type == TOKEN_OPERATOR)
+		return ("OPERATOR");
+	else if (token.type == TOKEN_EOF)
+		return ("EOF");
+	return (NULL);
+}
+
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
@@ -58,12 +81,12 @@ int main(int argc, char **argv, char **envp)
 		if(tokens != NULL)
 		{
 			i = 0;
-            while (i < token_count)
-            {
-                printf("token[%d] = %s\n", i, tokens[i].value);
-                i++;
-            }
-            free_tokens(tokens, token_count);
+			while (i < token_count)
+			{
+				printf("Token %d: \"%s\" (%s)\n", i, tokens[i].value, token_type_to_string(tokens[i]));
+				i++;
+			}
+			free_tokens(tokens, token_count);
 		}
         shell.exit_code = evaluate_input(shell.line, &shell);
         free(shell.line);
