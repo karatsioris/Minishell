@@ -1,10 +1,6 @@
 #ifndef TOKEN_H
 # define TOKEN_H
 
-
-void    tokenize(const char *input);
-
-
 typedef	enum e_class
 {
 	TOKEN_WORD,
@@ -23,7 +19,7 @@ typedef	enum e_kind
 
 typedef struct s_token_descriptor
 {
-    const char        *text;
+	const char        *text;
     t_operator_kind      kind;
     int         length;
 } t_token_descriptor;
@@ -35,4 +31,6 @@ typedef struct s_token
 	const t_token_descriptor  *descriptor;
 } t_token;
 
+t_token    *tokenize(const char *input, int *token_count);
+void 		free_tokens(t_token *tokens, int used);
 # endif

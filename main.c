@@ -24,7 +24,6 @@ int	evaluate_input(char	*line, t_shell	*shell)
 		shell->running = 0;
 		return (shell->exit_code);
 	}
-
 	printf("Input: %s\n", line);
 	return (0);
 }
@@ -32,6 +31,9 @@ int	evaluate_input(char	*line, t_shell	*shell)
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
+	int			token_count;
+	t_token		*tokens;
+	int 		i;
     (void)envp;
     (void)argv;
     (void)argc;
@@ -39,6 +41,7 @@ int main(int argc, char **argv, char **envp)
 	shell.exit_code = 0;
 	shell.running = 1;
 	shell.envp  = NULL;
+	shell.line = NULL;
 
     while (shell.running)
     {
@@ -51,8 +54,17 @@ int main(int argc, char **argv, char **envp)
 		}
 		if (shell.line[0] != '\0')
 			add_history(shell.line);
-		
-		tokenize(shell.line);
+		tokens = tokenize(shell.line, &token_count);
+		if(tokens != NULL)
+		{
+			i = 0;
+            while (i < token_count)
+            {
+                printf("token[%d] = %s\n", i, tokens[i].value);
+                i++;
+            }
+            free_tokens(tokens, token_count);
+		}
         shell.exit_code = evaluate_input(shell.line, &shell);
         free(shell.line);
 		shell.line = NULL;

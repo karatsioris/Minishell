@@ -1,35 +1,90 @@
 #include "token.h"
 #include "libft/libft.h"
 #include "stdio.h"
+#include "stdlib.h"
 
+// This file lexer (lexical analyzer) is tokenizes input by breaking it into meaningful units.
 
-/*
-    i will try to psedocode the logic of the lexer 
-    the first example would be echo hello world
-    it should devide the input to Token 0: "echo" , Token 1: "hello", Token 3: "world"
-
-*/
-void    tokenize(const char *input)
+int  is_space(char c)
 {
-    // should i use a while loop until check all the index of the input[i] or input[i] = '\0'
-    // if the input is ' ' then keep scanning
-    // if the next char is printable character go at the next char until found the next space ' '
-    // S.O.S i dont know if i can use any help function from my libft
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f');
+}
 
-    // t_token *token = NULL;
-    int i = 0;
-    while(input[i] != '\0')
-    if(input[i] == ' ')
-        i++;
+int  count_words(const char *input)
+{
+    int i;
+    int count;
+
+    i = 0;
+    count = 0;
+    while (input[i])
     {
-        if(ft_isalpha(input[i]))
-        {
-            // token->type = TOKEN_WORD;
-            size_t *leng = ft_strlen(input);
+        while (input[i] && is_space(input[i]))
+            i++;
+        if (!input[i])
+            break ;
+        count++;
+        while (input[i] && !is_space(input[i]))
+            i++;
+    }
+    return (count);
+}
 
-            printf("the lenght is %ln\n", leng);
-            printf("the class is %c\n", input[i]);
-        }
+void free_tokens(t_token *tokens, int used)
+{
+      int	i;
+
+    if (!tokens)
+        return ;
+    i = 0;
+    while (i < used)
+    {
+        free(tokens[i].value);
         i++;
     }
+    free(tokens);
+}
+
+t_token    *tokenize(const char *input, int *token_count)
+{
+    int     i;
+    int     start;
+    int     len;
+    int     index;
+    int     total_words;
+    t_token *tokens;
+
+    if (!input || !token_count)
+        return (NULL);
+    total_words = count_words(input);
+    tokens = malloc(sizeof(t_token) * (total_words + 1));
+    if (!tokens)
+        return (NULL);
+    i = 0;
+    index = 0;
+    while (input[i])
+    {
+        while (input[i] && is_space(input[i]))
+            i++;
+        if (!input[i])
+            break ;
+        start = i;
+        while (input[i] && !is_space(input[i]))
+            i++;
+        len = i - start;
+        tokens[index].value = ft_substr(input, start, len);
+        if (!tokens[index].value)
+        {
+            free_tokens(tokens, index);
+            return (NULL);
+        }
+        tokens[index].type = TOKEN_WORD;
+        tokens[index].descriptor = NULL;
+        index++;
+    }
+    tokens[index].value = NULL;
+    tokens[index].type = TOKEN_EOF;
+    tokens[index].descriptor = NULL;
+    *token_count = index;
+    return (tokens);
 }
