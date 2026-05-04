@@ -1,14 +1,4 @@
 #include "token.h"
-#include "libft/libft.h"
-#include "stdio.h"
-#include "stdlib.h"
-
-// This file lexer (lexical analyzer) is tokenizes input by breaking it into meaningful units.
-
-int  is_space(char c)
-{
-    return (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f');
-}
 
 int  count_tokens(const char *input)
 {
@@ -37,91 +27,63 @@ int  count_tokens(const char *input)
     return (count);
 }
 
-void free_tokens(t_token *tokens, int used)
+int		tokenize_operator(const char *input, t_token *tokens, int index, int i)
 {
-      int	i;
-
-    if (!tokens)
-        return ;
-    i = 0;
-    while (i < used)
+    const t_token_descriptor *desc = match_operator(&input[i]);
+    if (desc)
     {
-        free(tokens[i].value);
-        i++;
+        tokens[index].type = TOKEN_OPERATOR;
+        tokens[index].descriptor = desc;
+        tokens[index].value = ft_substr(input, i, desc->length);
+        return (desc->length);
     }
-    free(tokens);
+    return (0);
 }
 
-static const t_token_descriptor g_token_table[] =
+int		tokenize_word(const char *input, t_token *tokens, int index, int i)
 {
-    // text    kind          length
-    {"|",      OP_PIPE,      1},
-    {"<<",     OP_REDIRECT,  2},
-    {"<",      OP_REDIRECT,  1},
-    {">>",     OP_REDIRECT,  2},
-    {">",      OP_REDIRECT,  1},
-    {"(",      OP_GROUP,     1},
-    {")",      OP_GROUP,     1},
-    {NULL,     0,            0}
-};
+    int start = i;
 
-const t_token_descriptor  *match_operator(const char *input)
-{
-    int i = 0;
-    if (!input)
-        return (NULL);
-    while(g_token_table[i].text != NULL)
-    {
-       if (ft_strncmp(input, g_token_table[i].text, g_token_table[i].length) == 0)
-            return (&g_token_table[i]);
+    while (input[i] && !is_space(input[i]) && !match_operator(&input[i]))
         i++;
-    }
-    return (NULL);
+    tokens[index].type = TOKEN_WORD;
+    tokens[index].descriptor = NULL;
+    tokens[index].value = ft_substr(input, start, i - start);
+    return (i - start);
+}
+
+void	finalize_tokens(t_token *tokens, int index, int *token_count)
+{
+    tokens[index].value = NULL;
+    tokens[index].type = TOKEN_EOF;
+    tokens[index].descriptor = NULL;
+    *token_count = index;
 }
 
 t_token *tokenize(const char *input, int *token_count)
 {
-    int i = 0;
-    int index = 0;
+    int index = 0, i = 0;
     t_token *tokens;
 
     if (!input || !token_count)
-        return (NULL);
-    
+		return (NULL);
     tokens = malloc(sizeof(t_token) * (count_tokens(input) + 1));
     if (!tokens)
-        return (NULL);
-
-    while (input[i])
+		return (NULL);
+    
+	while (input[i])
     {
         while (input[i] && is_space(input[i]))
             i++;
         if (!input[i])
             break;
-
-        const t_token_descriptor *desc = match_operator(&input[i]);
-        if (desc)
-        {
-            tokens[index].type = TOKEN_OPERATOR;
-            tokens[index].descriptor = desc;
-            tokens[index].value = ft_substr(input, i, desc->length);
-            i += desc->length;
-        }
+        if (match_operator(&input[i]))
+            i += tokenize_operator(input, tokens, index, i);
         else
-        {
-            int start = i;
-            while (input[i] && !is_space(input[i]) && !match_operator(&input[i]))
-                i++;
-            tokens[index].type = TOKEN_WORD;
-            tokens[index].descriptor = NULL;
-            tokens[index].value = ft_substr(input, start, i - start);
-        }
+            i += tokenize_word(input, tokens, index, i);
         if (!tokens[index++].value)
             return (free_tokens(tokens, index - 1), NULL);
     }
-    tokens[index].value = NULL;
-    tokens[index].type = TOKEN_EOF;
-    tokens[index].descriptor = NULL;
-    *token_count = index;
+ 	finalize_tokens(tokens, index, token_count);
     return (tokens);
 }

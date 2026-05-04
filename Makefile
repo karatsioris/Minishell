@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 TARGET = minishell
-SRCS = main.c lexer.c 
+SRCS = main.c lexer.c lexer_utils.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)

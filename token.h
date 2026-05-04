@@ -1,9 +1,13 @@
 #ifndef TOKEN_H
 # define TOKEN_H
 
+#include "libft/libft.h"
+#include "stdio.h"
+#include "stdlib.h"
+
 typedef	enum e_class
 {
-	TOKEN_WORD,
+TOKEN_WORD,	
 	TOKEN_OPERATOR,
 	TOKEN_EOF,
 } t_class;
