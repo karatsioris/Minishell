@@ -27,63 +27,107 @@ int  count_tokens(const char *input)
     return (count);
 }
 
-int		tokenize_operator(const char *input, t_token *tokens, int index, int i)
+
+
+t_token	finalize_tokens()
 {
-    const t_token_descriptor *desc = match_operator(&input[i]);
-    if (desc)
+     t_token	token;
+
+    token.type = TOKEN_EOF;
+    token.value = NULL;
+    token.descriptor = NULL;
+    token.quote = STATE_NONE;
+    return (token);
+}
+ 
+t_token tokenize_operator(t_lexer *lexer)
+{
+    t_token					token;
+    const t_token_descriptor	*desc;
+
+    desc = match_operator(&lexer->input[lexer->pos]);
+    token.type = TOKEN_EOF;
+    token.value = NULL;
+    token.descriptor = NULL;
+    token.quote = STATE_NONE;
+    if (!desc)
+        return (token);
+    token.type = TOKEN_OPERATOR;
+    token.descriptor = desc;
+    token.value = ft_substr(lexer->input, lexer->pos, desc->length);
+    lexer->pos += desc->length;
+    lexer->current_char = lexer->input[lexer->pos];
+    return (token);
+}
+            
+t_token     tokenize_word(t_lexer *lexer)
+{
+    int start = lexer->pos;
+    t_token token;
+    token.quote = STATE_NONE;
+
+    while(lexer->current_char != '\0')
     {
-        tokens[index].type = TOKEN_OPERATOR;
-        tokens[index].descriptor = desc;
-        tokens[index].value = ft_substr(input, i, desc->length);
-        return (desc->length);
+        // state single_quote
+        if(lexer->current_char == '\'' && lexer->quote_state != STATE_DOUBLE)
+        {
+            if (lexer->quote_state == STATE_SINGLE)
+                lexer->quote_state = STATE_NONE;
+            else
+                lexer->quote_state = STATE_SINGLE;
+        }
+        // state double_quote
+        else if (lexer->current_char == '\"' && lexer->quote_state != STATE_SINGLE)
+        {
+            if (lexer->quote_state == STATE_DOUBLE)
+                lexer->quote_state = STATE_NONE;
+            else
+                lexer->quote_state = STATE_DOUBLE;
+        }
+
+        if (lexer->quote_state == STATE_NONE)
+        {
+            if (is_space(lexer->current_char) || match_operator(&lexer->input[lexer->pos]))
+                break;
+        }
+
+        if(lexer->input[lexer->pos])
+        {
+            lexer->pos++;
+            lexer->current_char = lexer->input[lexer->pos];
+        }
     }
-    return (0);
+    token.type = TOKEN_WORD;
+    token.descriptor = NULL;
+    token.value = ft_substr(lexer->input, start, lexer->pos - start);
+    return (token);
 }
 
-int		tokenize_word(const char *input, t_token *tokens, int index, int i)
+void	init_lexer(t_lexer *lexer, const char *input)
 {
-    int start = i;
-
-    while (input[i] && !is_space(input[i]) && !match_operator(&input[i]))
-        i++;
-    tokens[index].type = TOKEN_WORD;
-    tokens[index].descriptor = NULL;
-    tokens[index].value = ft_substr(input, start, i - start);
-    return (i - start);
+    if (!lexer)
+        return ;
+    lexer->input = input;
+    lexer->pos = 0;
+    lexer->current_char = (input && input[0]) ? input[0] : '\0';
+    lexer->quote_state = STATE_NONE;
 }
 
-void	finalize_tokens(t_token *tokens, int index, int *token_count)
+t_token     tokenize(t_lexer  *lexer)
 {
-    tokens[index].value = NULL;
-    tokens[index].type = TOKEN_EOF;
-    tokens[index].descriptor = NULL;
-    *token_count = index;
-}
-
-t_token *tokenize(const char *input, int *token_count)
-{
-    int index = 0, i = 0;
-    t_token *tokens;
-
-    if (!input || !token_count)
-		return (NULL);
-    tokens = malloc(sizeof(t_token) * (count_tokens(input) + 1));
-    if (!tokens)
-		return (NULL);
-    
-	while (input[i])
+    while(lexer->current_char && is_space(lexer->current_char))
     {
-        while (input[i] && is_space(input[i]))
-            i++;
-        if (!input[i])
-            break;
-        if (match_operator(&input[i]))
-            i += tokenize_operator(input, tokens, index, i);
-        else
-            i += tokenize_word(input, tokens, index, i);
-        if (!tokens[index++].value)
-            return (free_tokens(tokens, index - 1), NULL);
+        if(lexer->input[lexer->pos])
+        {
+            lexer->pos++;
+            lexer->current_char = lexer->input[lexer->pos];
+        }
     }
- 	finalize_tokens(tokens, index, token_count);
-    return (tokens);
+    if(lexer->current_char == '\0')
+        return(finalize_tokens());
+
+    if (lexer->quote_state == STATE_NONE
+        && match_operator(&lexer->input[lexer->pos]))
+        return (tokenize_operator(lexer));
+    return (tokenize_word(lexer));
 }

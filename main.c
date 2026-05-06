@@ -28,18 +28,6 @@ int	evaluate_input(char	*line, t_shell	*shell)
 	return (0);
 }
 
-// char	*token_type_to_string(t_token token)
-// {
-// 	if(token.type == 0)
-// 		return ("WORD");
-// 	else if(token.type == 1)
-// 		return ("OPERATOR");
-// 	else if(token.type == 2)
-// 		return ("EOF");
-// 	return (NULL);
-// }
-
-
 char	*token_type_to_string(t_token token)
 {
 	if (token.type == TOKEN_WORD)
@@ -54,13 +42,13 @@ char	*token_type_to_string(t_token token)
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
-	int			token_count;
-	t_token		*tokens;
-	int 		i;
+	t_lexer		lexer;
+	t_token		token;
+	int 		i = 0;
+
     (void)envp;
     (void)argv;
     (void)argc;
-
 	shell.exit_code = 0;
 	shell.running = 1;
 	shell.envp  = NULL;
@@ -71,23 +59,20 @@ int main(int argc, char **argv, char **envp)
         shell.line = readline("minishell$ ");
 		
         if (shell.line == NULL)
-		{
-			printf("exit\n");
 			break;
-		}
+
 		if (shell.line[0] != '\0')
 			add_history(shell.line);
-		tokens = tokenize(shell.line, &token_count);
-		if(tokens != NULL)
-		{
-			i = 0;
-			while (i < token_count)
-			{
-				printf("Token %d: \"%s\" (%s)\n", i, tokens[i].value, token_type_to_string(tokens[i]));
-				i++;
-			}
-			free_tokens(tokens, token_count);
-		}
+		init_lexer(&lexer, shell.line);
+		while (shell.running)
+        {
+            token = tokenize(&lexer);
+            if (token.type == TOKEN_EOF)
+                break ;
+            printf("Token %d: \'%s\' (%s)\n", i, token.value, token_type_to_string(token));
+            free(token.value);
+            i++;
+        }
         shell.exit_code = evaluate_input(shell.line, &shell);
         free(shell.line);
 		shell.line = NULL;

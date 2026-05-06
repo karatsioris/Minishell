@@ -32,17 +32,17 @@ const t_token_descriptor  *match_operator(const char *input)
     return (NULL);
 }
 
-void free_tokens(t_token *tokens, int used)
-{
-    int	i;
+// void free_tokens(t_token *tokens, int used)
+// {
+//     int	i;
 
-    if (!tokens)
-        return ;
-    i = 0;
-    while (i < used)
-    {
-        free(tokens[i].value);
-        i++;
-    }
-    free(tokens);
-}
+//     if (!tokens)
+//         return ;
+//     i = 0;
+//     while (i < used)
+//     {
+//         free(tokens[i].value);
+//         i++;
+//     }
+//     free(tokens);
+// }
