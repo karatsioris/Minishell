@@ -54,10 +54,11 @@ typedef struct s_token
 	t_quote_state		quote;
 } t_token;
 
-// t_token    *tokenize(const char *input, int *token_count);
 t_token     tokenize(t_lexer  *lexer);
 void		init_lexer(t_lexer *lexer, const char *input);
 void 		free_tokens(t_token *tokens, int used);
 const t_token_descriptor  *match_operator(const char *input);
 int  is_space(char c);
+void    scan_word_with_quotes(t_lexer *lexer);
+void    advance_lexer(t_lexer  *lexer);
 # endif
