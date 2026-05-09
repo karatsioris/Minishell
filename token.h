@@ -61,4 +61,5 @@ const t_token_descriptor  *match_operator(const char *input);
 int  is_space(char c);
 void    scan_word_with_quotes(t_lexer *lexer);
 void    advance_lexer(t_lexer  *lexer);
+int 	count_tokens(const char *input);
 # endif

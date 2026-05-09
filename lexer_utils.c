@@ -15,32 +15,32 @@
 //     free(tokens);
 // }
 
-// int  count_tokens(const char *input)
-// {
-//     int i = 0;
-//     int count = 0;
+int  count_tokens(const char *input)
+{
+    int i = 0;
+    int count = 0;
 
-//     while (input[i])
-//     {
-//         while (input[i] && is_space(input[i]))
-//             i++;
-//         if (!input[i])
-//             break ;
+    while (input[i])
+    {
+        while (input[i] && is_space(input[i]))
+            i++;
+        if (!input[i])
+            break ;
 
-//         const t_token_descriptor *desc = match_operator(&input[i]);
-//         if (desc)
-//         {
-//             i += desc->length;
-//         }
-//         else
-//         {
-//             while (input[i] && !is_space(input[i]) && !match_operator(&input[i]))
-//                 i++;
-//         }
-//         count++;
-//     }
-//     return (count);
-// }
+        const t_token_descriptor *desc = match_operator(&input[i]);
+        if (desc)
+        {
+            i += desc->length;
+        }
+        else
+        {
+            while (input[i] && !is_space(input[i]) && !match_operator(&input[i]))
+                i++;
+        }
+        count++;
+    }
+    return (count);
+}
 
 int  is_space(char c)
 {

@@ -39,12 +39,48 @@ char	*token_type_to_string(t_token token)
 	return (NULL);
 }
 
+// function that should be in the parser.c
+t_token     *array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
+{
+	(void)shell;
+	t_token		*all_token;
+	int		num_tokens;
+	int		i= 0;
+
+	num_tokens = count_tokens(lexer->input);
+	all_token = malloc(sizeof(t_token) *(num_tokens + 1));
+	if (!all_token)
+    	return (NULL);
+    while(i < num_tokens)
+	{
+		all_token[i] = tokenize(lexer);
+		if(all_token[i].type == TOKEN_EOF)
+			break;
+		i++;
+	}
+	if(out_len)
+		*out_len = i;
+	return(all_token);
+}
+
+void	print_tokens(t_token	*all_token, int count)
+{
+	int i = 0;
+	while(i < count)
+	{
+		printf("Token %d: \'%s\' (%s)\n", i, all_token[i].value, token_type_to_string(all_token[i]));
+            // free(all_token->value); // need to check for memory leaks
+            i++;
+	}
+}
+
+
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
 	t_lexer		lexer;
-	t_token		token;
-	int 		i = 0;
+	t_token		*all_token;
+	int			token_count;
 
     (void)envp;
     (void)argv;
@@ -64,15 +100,8 @@ int main(int argc, char **argv, char **envp)
 		if (shell.line[0] != '\0')
 			add_history(shell.line);
 		init_lexer(&lexer, shell.line);
-		while (shell.running)
-        {
-            token = tokenize(&lexer);
-            if (token.type == TOKEN_EOF)
-                break ;
-            printf("Token %d: \'%s\' (%s)\n", i, token.value, token_type_to_string(token));
-            free(token.value);
-            i++;
-        }
+		all_token = array_of_token(&lexer, &shell, &token_count);
+		print_tokens(all_token, token_count);
         shell.exit_code = evaluate_input(shell.line, &shell);
         free(shell.line);
 		shell.line = NULL;
