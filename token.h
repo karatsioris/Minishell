@@ -23,9 +23,12 @@ typedef	enum e_class
 
 typedef	enum e_kind
 {
-	OP_PIPE, // |
-    OP_REDIRECT, // < , > , << , >>
-    OP_GROUP, // ( and )
+	OP_PIPE,
+	OP_HEREDOC,
+    OP_REDIR_IN,
+	OP_APPEND,
+	OP_REDIR_OUT,
+    OP_GROUP,
 } t_operator_kind;
 
 typedef struct s_token_descriptor

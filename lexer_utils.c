@@ -51,10 +51,10 @@ static const t_token_descriptor g_token_table[] =
 {
     // text    kind          length
     {"|",      OP_PIPE,      1},
-    {"<<",     OP_REDIRECT,  2},
-    {"<",      OP_REDIRECT,  1},
-    {">>",     OP_REDIRECT,  2},
-    {">",      OP_REDIRECT,  1},
+    {"<<",     OP_HEREDOC,  2},
+    {"<",      OP_REDIR_IN,  1},
+    {">>",     OP_APPEND,  2},
+    {">",      OP_REDIR_OUT,  1},
     {"(",      OP_GROUP,     1},
     {")",      OP_GROUP,     1},
     {NULL,     0,            0}
