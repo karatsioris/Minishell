@@ -53,7 +53,8 @@ void		init_lexer(t_lexer *lexer, const char *input);
 void 		free_tokens(t_token *tokens, int used);
 const t_token_descriptor  *match_operator(const char *input);
 int  is_space(char c);
-t_quote_state    scan_word_for_quotes(t_lexer *lexer);
+t_quote_state   scan_word(t_lexer *lexer);
+char    *remove_quotes(const char *raw);
 void    advance_lexer(t_lexer  *lexer);
 int 	count_tokens(const char *input);
 # endif

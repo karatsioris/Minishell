@@ -43,11 +43,16 @@ t_token tokenize_operator(t_lexer *lexer)
             
 t_token     tokenize_word(t_lexer *lexer)
 {
-    int     start = lexer->pos;
     t_token token;
+    char    *raw;
+    int     start;
+
+    start = lexer->pos;
     token.type = TOKEN_WORD;
-    token.quote = scan_word_for_quotes(lexer);
-    token.value = ft_substr(lexer->input, start, lexer->pos - start);
+    token.quote = scan_word(lexer);
+    raw = ft_substr(lexer->input, start, lexer->pos - start);
+    token.value = remove_quotes(raw);
+    free(raw);
     return (token);
 }
 

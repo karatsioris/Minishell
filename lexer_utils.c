@@ -81,40 +81,63 @@ void    advance_lexer(t_lexer  *lexer)
             lexer->current_char = lexer->input[lexer->pos];
         }
 }
+t_quote_state   return_quote_state(char quote_char)
+{
+    if (quote_char == '\'')
+        return  STATE_SINGLE;
+    else
+        return STATE_DOUBLE;
+}
 
-t_quote_state    scan_word_for_quotes(t_lexer *lexer)
+t_quote_state   scan_word(t_lexer *lexer)
 {
     t_quote_state   state = STATE_NONE;
     t_quote_state   result = STATE_NONE;
+    char            quote_char = '\0';
 
-    while(lexer->current_char != '\0')
+    while (lexer->current_char != '\0')
     {
-        if(lexer->current_char == '\'' && state == STATE_NONE)
+        if (state == STATE_NONE && (lexer->current_char == '\''
+                || lexer->current_char == '"'))
         {
-            state = STATE_SINGLE;
-            result = STATE_SINGLE;
-            advance_lexer(lexer);
+            quote_char = lexer->current_char;
+            result = return_quote_state(quote_char);
+            state = result;
         }
-        else if (lexer->current_char == '\"' && state != STATE_NONE)
-        {
-            state = STATE_DOUBLE;
-            result = STATE_DOUBLE;
-            advance_lexer(lexer);
-        }
-        else if (lexer->current_char == '\'' && state == STATE_SINGLE)
-        {
+        else if (state != STATE_NONE && lexer->current_char == quote_char)
             state = STATE_NONE;
-            advance_lexer(lexer);
-        }
-        else if (lexer->current_char == '\"' && state == STATE_DOUBLE)
-        {
-            state = STATE_NONE;
-            advance_lexer(lexer);
-        }
-        else if (state == STATE_NONE && (is_space(lexer->current_char) || match_operator(&lexer->input[lexer->pos])))
-                break;
-        else
-            advance_lexer(lexer);
+        else if (state == STATE_NONE && (is_space(lexer->current_char)
+                || match_operator(&lexer->input[lexer->pos])))
+            break ;
+        advance_lexer(lexer);
     }
+    return (result);
+}
+
+char    *remove_quotes(const char *raw)
+{
+    char            *result;
+    char            quote_char = '\0';
+    int             i = 0, j = 0;
+    t_quote_state   state = STATE_NONE;
+
+    result = malloc(ft_strlen(raw) + 1);
+    if (!result)
+        return (NULL);
+
+    while (raw[i] != '\0')
+    {
+        if (state == STATE_NONE && (raw[i] == '\'' || raw[i] == '"'))
+        {
+            quote_char = raw[i];
+            state = return_quote_state(quote_char);
+        }
+        else if (state != STATE_NONE && raw[i] == quote_char)
+            state = STATE_NONE;
+        else
+            result[j++] = raw[i];
+        i++;
+    }
+    result[j] = '\0';
     return (result);
 }
