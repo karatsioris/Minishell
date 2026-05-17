@@ -4,8 +4,16 @@ char	*token_type_to_string(t_token token)
 {
 	if (token.type == TOKEN_WORD)
 		return ("WORD");
-	else if (token.type == TOKEN_OPERATOR)
-		return ("OPERATOR");
+	else if (token.type == TOKEN_PIPE)
+		return ("PIPE");
+    else if (token.type == TOKEN_HEREDOC)
+		return ("HEREDOC");
+    else if (token.type == TOKEN_REDIR_IN)
+		return ("REDIR_IN");
+    else if (token.type == TOKEN_APPEND)
+		return ("TOKEN_APPEND");
+    else if (token.type == TOKEN_REDIR_OUT)
+		return ("REDIR_OUT");
 	else if (token.type == TOKEN_EOF)
 		return ("EOF");
 	return (NULL);

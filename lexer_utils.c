@@ -49,15 +49,13 @@ int  is_space(char c)
 
 static const t_token_descriptor g_token_table[] =
 {
-    // text    kind          length
-    {"|",      OP_PIPE,      1},
-    {"<<",     OP_HEREDOC,  2},
-    {"<",      OP_REDIR_IN,  1},
-    {">>",     OP_APPEND,  2},
-    {">",      OP_REDIR_OUT,  1},
-    {"(",      OP_GROUP,     1},
-    {")",      OP_GROUP,     1},
-    {NULL,     0,            0}
+    // text    kind                 length
+    {"<<",     TOKEN_HEREDOC,       2},
+    {">>",     TOKEN_APPEND,        2},
+    {"|",      TOKEN_PIPE,          1},
+    {"<",      TOKEN_REDIR_IN,      1},
+    {">",      TOKEN_REDIR_OUT,     1},
+    {NULL,     TOKEN_EOF,           0}
 };
 
 const t_token_descriptor  *match_operator(const char *input)
@@ -84,29 +82,39 @@ void    advance_lexer(t_lexer  *lexer)
         }
 }
 
-void    scan_word_with_quotes(t_lexer *lexer)
+t_quote_state    scan_word_for_quotes(t_lexer *lexer)
 {
+    t_quote_state   state = STATE_NONE;
+    t_quote_state   result = STATE_NONE;
+
     while(lexer->current_char != '\0')
     {
-        if(lexer->current_char == '\'' && lexer->quote_state != STATE_DOUBLE)
+        if(lexer->current_char == '\'' && state == STATE_NONE)
         {
-            if (lexer->quote_state == STATE_SINGLE)
-                lexer->quote_state = STATE_NONE;
-            else
-                lexer->quote_state = STATE_SINGLE;
+            state = STATE_SINGLE;
+            result = STATE_SINGLE;
+            advance_lexer(lexer);
         }
-        else if (lexer->current_char == '\"' && lexer->quote_state != STATE_SINGLE)
+        else if (lexer->current_char == '\"' && state != STATE_NONE)
         {
-            if (lexer->quote_state == STATE_DOUBLE)
-                lexer->quote_state = STATE_NONE;
-            else
-                lexer->quote_state = STATE_DOUBLE;
+            state = STATE_DOUBLE;
+            result = STATE_DOUBLE;
+            advance_lexer(lexer);
         }
-        if (lexer->quote_state == STATE_NONE)
+        else if (lexer->current_char == '\'' && state == STATE_SINGLE)
         {
-            if (is_space(lexer->current_char) || match_operator(&lexer->input[lexer->pos]))
+            state = STATE_NONE;
+            advance_lexer(lexer);
+        }
+        else if (lexer->current_char == '\"' && state == STATE_DOUBLE)
+        {
+            state = STATE_NONE;
+            advance_lexer(lexer);
+        }
+        else if (state == STATE_NONE && (is_space(lexer->current_char) || match_operator(&lexer->input[lexer->pos])))
                 break;
-        }
-        advance_lexer(lexer);
+        else
+            advance_lexer(lexer);
     }
+    return (result);
 }

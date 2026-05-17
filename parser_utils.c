@@ -6,8 +6,7 @@ int find_pipe(t_token *tokens, int start, int end)
     int i = start;
 	while(i < end)
 	{
-        if(tokens[i].type == TOKEN_OPERATOR && tokens[i].descriptor
-            && tokens[i].descriptor->kind == OP_PIPE)
+        if(tokens[i].type == TOKEN_PIPE)
 			return(i);
             i++;
         }

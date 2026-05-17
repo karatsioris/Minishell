@@ -51,9 +51,9 @@ int main(int argc, char **argv, char **envp)
 		all_token = array_of_token(&lexer, &shell, &token_count);
 		print_tokens(all_token, token_count);
 		
-		printf("\n\n\n");
-		t_node *ast = parse_token(all_token, token_count);
-		print_ast(ast, 0, "ROOT");
+		// printf("\n\n\n");
+		// t_node *ast = parse_token(all_token, token_count);
+		// print_ast(ast, 0, "ROOT");
 
         shell.exit_code = evaluate_input(shell.line, &shell);
         free(shell.line);

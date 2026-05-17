@@ -48,7 +48,7 @@ t_node	*cmd_node(t_token *tokens, int start, int end)
 	i = start;
 	while(i < end)
 	{
-		if (tokens[i].type == TOKEN_OPERATOR)
+		if (tokens[i].type != TOKEN_WORD)
             i++;
 		if(tokens[i].type == TOKEN_WORD)
 			arg_count++;
@@ -64,7 +64,7 @@ t_node	*cmd_node(t_token *tokens, int start, int end)
 	i = start;
 	while( i < end)
 	{
-		if (tokens[i].type == TOKEN_OPERATOR)
+		if (tokens[i].type != TOKEN_WORD)
         {
             t_redir *r = new_redir(get_redir_type(tokens[i]), tokens[i + 1].value);
             add_redir_back(&(node->redirs), r);
@@ -103,3 +103,4 @@ t_node  *parse_token(t_token    *all_token, int count)
         return (NULL);
     return parse_subtokens(all_token, 0, count - 1);
 }
+// 
