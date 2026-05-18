@@ -10,7 +10,6 @@ void	init_lexer(t_lexer *lexer, const char *input)
         lexer->current_char = input[0];
     else
         lexer->current_char = '\0';
-    // lexer->quote_state = STATE_NONE;
 }
 
 t_token	create_eof_token()
