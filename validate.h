@@ -14,4 +14,12 @@ typedef enum e_syntax_error
 
 t_syntax_error  validate_input(const char *input);
 
+int				skip_spaces(const char *input, int i);
+t_syntax_error	check_pipes(const char *input);
+t_syntax_error  check_after_operator(const char *input, int i);
+t_syntax_error	check_redirections(const char *input);
+t_syntax_error	check_quotes(const char *input);
+
+
+
 #endif
