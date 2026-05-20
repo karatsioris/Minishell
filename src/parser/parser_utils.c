@@ -9,8 +9,8 @@ int find_pipe(t_token *tokens, int start, int end)
         if(tokens[i].type == TOKEN_PIPE)
 			return(i);
             i++;
-        }
-        return(-1);
+    }
+    return(-1);
 }
  
 t_redir_type get_redir_type(t_token token)

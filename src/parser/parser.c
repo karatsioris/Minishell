@@ -50,7 +50,7 @@ t_node	*cmd_node(t_token *tokens, int start, int end)
 	{
 		if (tokens[i].type != TOKEN_WORD)
             i++;
-		if(tokens[i].type == TOKEN_WORD)
+		else if(tokens[i].type == TOKEN_WORD)
 			arg_count++;
 		i++;
 	}

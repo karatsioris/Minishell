@@ -1,4 +1,5 @@
 #ifndef VALIDATE_H
+# define VALIDATE_H
 
 typedef enum e_syntax_error
 {
