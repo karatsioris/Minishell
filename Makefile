@@ -4,6 +4,11 @@ NAME    = minishell
 
 SRCS    =   main.c \
             print_functions.c \
+            src/executer/executer.c \
+            src/executer/executer_cleanup.c \
+            src/executer/executer_path.c \
+            src/executer/executer_redir.c \
+            src/executer/executer_runtime.c \
             src/lexer/lexer.c \
             src/lexer/lexer_utils.c \
             src/lexer/lexer_quotes.c \
