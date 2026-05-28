@@ -50,7 +50,7 @@ t_node	*cmd_node(t_token *tokens, int start, int end)
 	{
 		if (tokens[i].type != TOKEN_WORD)
             i++;
-		else if(tokens[i].type == TOKEN_WORD)
+		if(tokens[i].type == TOKEN_WORD)
 			arg_count++;
 		i++;
 	}
@@ -103,3 +103,4 @@ t_node  *parse_token(t_token    *all_token, int count)
         return (NULL);
     return parse_subtokens(all_token, 0, count - 1);
 }
+// 

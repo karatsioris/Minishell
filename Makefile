@@ -9,6 +9,7 @@ SRCS    =   main.c \
             src/lexer/lexer_quotes.c \
             src/parser/parser.c \
             src/parser/parser_utils.c \
+            src/parser/parser_free_utils.c \
             src/validate/validate.c
 
 OBJS    = $(SRCS:.c=.o)
