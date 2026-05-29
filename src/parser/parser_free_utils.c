@@ -11,7 +11,7 @@ static void	free_redir(t_redir	*redirs)
 		free(redirs->file);
 		redirs->file = NULL;
 		free(redirs);
-		tmp = redirs;
+        redirs = tmp;
 	}
 }
 
