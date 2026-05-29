@@ -39,44 +39,127 @@ t_node  *new_node(t_node_type type)
     return(node);
 }
 
-t_node	*cmd_node(t_token *tokens, int start, int end)
+// void	build_args_array(t_node *node, t_token	*tokens, int start, int end)
+// {
+// 	int arg_count = 0;
+// 	int i;
+
+// 	i = start;
+// 	while(i < end)
+// 	{
+// 		if (tokens[i].type != TOKEN_WORD)
+//             i++;
+// 		else if(tokens[i].type == TOKEN_WORD)
+// 			arg_count++;
+// 		i++;
+// 	}
+// 	node->args = malloc(sizeof(char *) * (arg_count + 1));
+// 	if(!node->args)
+// 		return;
+// }
+
+// void	populate_node_data(t_node *node, t_token	*tokens, int start, int end)
+// {
+// 	int i = start;
+// 	int j = 0;
+// 	while( i < end)
+// 	{
+// 		if (tokens[i].type != TOKEN_WORD)
+//         {
+//             t_redir *r = new_redir(get_redir_type(tokens[i]), tokens[i + 1].value);
+//             add_redir_back(&(node->redirs), r);
+//             i++; // Skip the filename token
+//         }
+//         else if (tokens[i].type == TOKEN_WORD)
+//             node->args[j++] = ft_strdup(tokens[i].value);
+//         i++;
+// 	}
+// 	node->args[j] = NULL;
+// }
+
+// t_node	*cmd_node(t_token *tokens, int start, int end)
+// {
+// 	t_node *node = new_node(NODE_CMD);
+// 	if (!node)
+//         return (NULL);
+	
+// 	build_args_array(node, tokens, start, end);
+//     if (!node->args)
+//     {
+//         free(node);
+//         return (NULL);
+//     }
+
+//     populate_node_data(node, tokens, start, end);
+	
+// 	return(node);
+// }
+
+char    **build_args_array(t_token *tokens, int start, int end)
 {
-	t_node *node = new_node(NODE_CMD);
-	int arg_count = 0;
+	char	**args;
+	int arg_count;
 	int i;
+	int j;
 
 	i = start;
+	arg_count = 0;
 	while(i < end)
 	{
 		if (tokens[i].type != TOKEN_WORD)
-            i++;
+			i++;
 		else if(tokens[i].type == TOKEN_WORD)
 			arg_count++;
 		i++;
 	}
-	if(!node)
+	args = malloc(sizeof(char *) * (arg_count + 1));
+	if(!args)
 		return(NULL);
-	node->args = malloc(sizeof(char *) * (arg_count + 1));
-	if(!node->args)
-		return(NULL);
-
-	int j = 0;
+	j = 0;
 	i = start;
 	while( i < end)
 	{
-		if (tokens[i].type != TOKEN_WORD)
-        {
-            t_redir *r = new_redir(get_redir_type(tokens[i]), tokens[i + 1].value);
-            add_redir_back(&(node->redirs), r);
-            i++; // Skip the filename token
-        }
-        else if (tokens[i].type == TOKEN_WORD)
-            node->args[j++] = ft_strdup(tokens[i].value);
+		if (tokens[i].type == TOKEN_WORD)
+            args[j++] = ft_strdup(tokens[i].value);
+		else
+			i++;
         i++;
 	}
-	node->args[j] = NULL;
-	return(node);
+	args[j] = NULL;
+	return(args);
+
 }
+
+t_redir  *build_redir_list(t_token *tokens, int start, int end)
+{
+	t_redir *head = NULL;
+    int i = start;
+
+    while (i < end)
+    {
+        if (tokens[i].type != TOKEN_WORD)
+        {
+            t_redir *r = new_redir(get_redir_type(tokens[i]), tokens[i + 1].value);
+            add_redir_back(&head, r);
+            i++; // Skip filename
+        }
+        i++;
+    }
+    return (head);
+}
+
+t_node   *cmd_node(t_token *tokens, int start, int end)
+{
+    t_node *node = new_node(NODE_CMD);
+    if (!node)
+        return (NULL);
+
+    node->args = build_args_array(tokens, start, end);
+    node->redirs = build_redir_list(tokens, start, end);
+
+    return (node);
+}
+
 
 t_node	*parse_subtokens(t_token *tokens, int start, int end)
 {
@@ -96,6 +179,7 @@ t_node	*parse_subtokens(t_token *tokens, int start, int end)
 	}
 	return(cmd_node(tokens, start, end));
 }
+
 
 t_node  *parse_token(t_token    *all_token, int count)
 {

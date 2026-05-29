@@ -1,26 +1,5 @@
 #include "token.h"
 
-void free_tokens(t_token *tokens, int count)
-{
-    int	i;
-
-    if (!tokens)
-        return ;
-    i = 0;
-    while (i < count)
-    {
-        free(tokens[i].value);
-        tokens[i].value = NULL;
-        i++;
-    }
-    free(tokens);
-}
-
-int  is_space(char c)
-{
-    return (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f');
-}
-
 static const t_token_descriptor g_token_table[] =
 {
     // text    kind                 length
@@ -31,6 +10,12 @@ static const t_token_descriptor g_token_table[] =
     {">",      TOKEN_REDIR_OUT,     1},
     {NULL,     TOKEN_EOF,           0}
 };
+
+int  is_space(char c)
+{
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f');
+}
+
 
 const t_token_descriptor  *match_operator(const char *input)
 {
@@ -56,6 +41,7 @@ void    advance_lexer(t_lexer  *lexer)
         }
 }
 
+
 t_quote_state   scan_word(t_lexer *lexer)
 {
     t_quote_state   state = STATE_NONE;
@@ -74,6 +60,7 @@ t_quote_state   scan_word(t_lexer *lexer)
     }
     return (result);
 }
+
 
 int  count_tokens(const char *input)
 {
@@ -103,4 +90,3 @@ int  count_tokens(const char *input)
     }
     return (count);
 }
-
