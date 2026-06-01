@@ -8,6 +8,7 @@ SRCS    =   main.c \
             src/executer/executer_path.c \
             src/executer/executer_redir.c \
             src/executer/executer_runtime.c \
+            src/executer/builtin.c \
             src/lexer/lexer.c \
             src/lexer/lexer_free_utils.c \
             src/lexer/lexer_utils.c \

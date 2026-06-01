@@ -1,8 +1,11 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdio.h>
+#include "libft.h"
 
 #include "executer_internal.h"
+#include "builtin.h"
 
 static int	run_command_node(t_node *node, t_shell *shell)
 {
@@ -16,6 +19,12 @@ static int	run_command_node(t_node *node, t_shell *shell)
 	}
 	if (apply_redirections(node) != 0)
 		return (1);
+	/* check builtins that can run in child (pwd, env) */
+	{
+		int builtin_rc = run_builtin_child(node, shell);
+		if (builtin_rc != -1)
+			return (builtin_rc);
+	}
 	path = resolve_command_path(node->args[0], shell->envp);
 	if (!path)
 	{
@@ -119,6 +128,29 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 	}
 	if (fork_command)
 	{
+		/* run parent-only builtins without forking (e.g., cd, exit) */
+        
+		if (node->args && node->args[0] && is_parent_builtin(node->args[0]))
+		{
+			int saved_in = dup(STDIN_FILENO);
+			int saved_out = dup(STDOUT_FILENO);
+			int rc = 0;
+			if (apply_redirections(node) != 0)
+			{
+				rc = 1;
+			}
+			else
+			{
+				rc = run_builtin_parent(node, shell);
+				shell->exit_code = rc;
+			}
+			/* restore fds */
+			dup2(saved_in, STDIN_FILENO);
+			dup2(saved_out, STDOUT_FILENO);
+			close(saved_in);
+			close(saved_out);
+			return (rc);
+		}
 		pid = fork();
 		if (pid == 0)
 			_exit(execute_node(node, shell, in_fd, out_fd, 0));

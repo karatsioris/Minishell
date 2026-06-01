@@ -60,16 +60,7 @@ int main(int argc, char **argv, char **envp)
 			continue;
 		}
 		if (shell.line[0] != '\0')
-			add_history(shell.line);
-		if (ft_strncmp(shell.line, "exit", 4) == 0
-			&& (shell.line[4] == '\0' || is_space(shell.line[4])))
-		{
-			shell.running = 0;
-			shell.exit_code = 0;
-			free(shell.line);
-			shell.line = NULL;
-			continue;
-		}
+			add_history(shell.line);        
 
 		init_lexer(&lexer, shell.line);
 		all_token = array_of_token(&lexer, &shell, &token_count);
