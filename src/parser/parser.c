@@ -2,10 +2,131 @@
 #include "token.h"
 #include "shell.h"
 
+static char	*lookup_env_value(char **envp, const char *name, int name_len)
+{
+	int	i;
+
+	if (!envp || !name || name_len <= 0)
+		return (NULL);
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strncmp(envp[i], name, name_len) == 0 && envp[i][name_len] == '=')
+			return (envp[i] + name_len + 1);
+		i++;
+	}
+	return (NULL);
+}
+
+static char	*append_str(char *base, const char *suffix)
+{
+	char	*joined;
+
+	if (!base || !suffix)
+		return (NULL);
+	joined = ft_strjoin(base, suffix);
+	free(base);
+	return (joined);
+}
+
+static char	*expand_token_value(const char *value, t_shell *shell, t_quote_state quote)
+{
+	char	*result;
+	int		index;
+
+	if (!value)
+		return (NULL);
+	if (quote == STATE_SINGLE || !shell)
+		return (ft_strdup(value));
+	result = ft_strdup("");
+	if (!result)
+		return (NULL);
+	index = 0;
+	while (value[index])
+	{
+		if (value[index] != '$')
+		{
+			char literal[2];
+
+			literal[0] = value[index];
+			literal[1] = '\0';
+			result = append_str(result, literal);
+			if (!result)
+				return (NULL);
+			index++;
+			continue;
+		}
+		if (value[index + 1] == '?')
+		{
+			char status[32];
+
+			snprintf(status, sizeof(status), "%d", shell->exit_code);
+			result = append_str(result, status);
+			if (!result)
+				return (NULL);
+			index += 2;
+			continue;
+		}
+		if (value[index + 1] == '\0')
+		{
+			result = append_str(result, "$");
+			if (!result)
+				return (NULL);
+			index++;
+			continue;
+		}
+		if (value[index + 1] == '_' || ft_isalpha(value[index + 1]))
+		{
+			int	name_start;
+			int	name_len;
+			char	*env_value;
+
+			name_start = index + 1;
+			name_len = name_start;
+			while (value[name_len] == '_' || ft_isalnum(value[name_len]))
+				name_len++;
+			env_value = lookup_env_value(shell->envp, value + name_start, name_len - name_start);
+			result = append_str(result, env_value ? env_value : "");
+			if (!result)
+				return (NULL);
+			index = name_len;
+			continue;
+		}
+		result = append_str(result, "$");
+		if (!result)
+			return (NULL);
+		index++;
+	}
+	return (result);
+}
+
+static void	apply_expansions(t_token *tokens, int count, t_shell *shell)
+{
+	int	index;
+
+	if (!tokens || !shell)
+		return ;
+	index = 0;
+	while (index < count)
+	{
+		if (tokens[index].type == TOKEN_WORD && tokens[index].value)
+		{
+			char *expanded;
+
+			expanded = expand_token_value(tokens[index].value, shell, tokens[index].quote);
+			if (expanded)
+			{
+				free(tokens[index].value);
+				tokens[index].value = expanded;
+			}
+		}
+		index++;
+	}
+}
+
 
 t_token     *array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
 {
-	(void)shell;
 	t_token		*all_token;
 	int		num_tokens;
 	int		i= 0;
@@ -21,6 +142,7 @@ t_token     *array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
 		// 	break;
 		i++;
 	}
+	apply_expansions(all_token, num_tokens, shell);
 	if(out_len)
 		*out_len = i;
 	return(all_token);
