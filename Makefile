@@ -5,19 +5,19 @@ NAME    = minishell
 SRCS    =   main.c \
             print_functions.c \
             src/executer/executer.c \
-            src/executer/executer_cleanup.c \
             src/executer/executer_path.c \
             src/executer/executer_redir.c \
             src/executer/executer_runtime.c \
             src/lexer/lexer.c \
+            src/lexer/lexer_free_utils.c \
             src/lexer/lexer_utils.c \
             src/lexer/lexer_quotes.c \
             src/parser/parser.c \
             src/parser/parser_utils.c \
+            src/parser/parser_free_utils.c \
             src/validate/validate.c
 
 OBJS    = $(SRCS:.c=.o)
-
 all: $(NAME)
 
 $(NAME): $(OBJS) libft/libft.a

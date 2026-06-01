@@ -30,7 +30,7 @@ int main(int argc, char **argv, char **envp)
     t_shell		shell;
 	t_lexer		lexer;
 	t_token		*all_token;
-	t_node   *ast;
+	t_node		*ast;
 	int			token_count;
 	t_syntax_error	err;
 
@@ -41,6 +41,8 @@ int main(int argc, char **argv, char **envp)
 	shell.running = 1;
 	shell.envp  = envp;
 	shell.line = NULL;
+	all_token = NULL;
+	ast = NULL;
 
     while (shell.running)
     {
@@ -71,19 +73,23 @@ int main(int argc, char **argv, char **envp)
 
 		init_lexer(&lexer, shell.line);
 		all_token = array_of_token(&lexer, &shell, &token_count);
-		if (!all_token)
-		{
-			shell.exit_code = 1;
-			free(shell.line);
-			shell.line = NULL;
-			continue;
-		}
+		print_tokens(all_token, token_count);
+		
+		printf("\n\n\n");
 		ast = parse_token(all_token, token_count);
-		free_tokens(all_token, token_count);
 		shell.exit_code = execute_ast(ast, &shell);
+		free_tokens(all_token, token_count);
+		all_token = NULL;
 		free_ast(ast);
+		ast = NULL;
         free(shell.line);
 		shell.line = NULL;
     }
+	free_tokens(all_token, token_count);
+	all_token = NULL;
+	free_ast(ast);
+	ast = NULL;
+	free(shell.line);
+	shell.line = NULL;
     return (shell.exit_code);
 }

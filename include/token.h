@@ -55,8 +55,10 @@ t_token						tokenize_operator(t_lexer *lexer);
 t_token						tokenize_word(t_lexer *lexer);
 t_token						tokenize(t_lexer  *lexer);
 
+// lexer_free_utils.c
+void						free_tokens(t_token *tokens, int count);
+
 // lexer_utils.c
-// void						free_tokens(t_token *tokens, int used);
 const t_token_descriptor	*match_operator(const char *input);
 int							is_space(char c);
 t_quote_state				scan_word(t_lexer *lexer);

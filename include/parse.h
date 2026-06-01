@@ -48,6 +48,10 @@ t_redir_type	get_redir_type(t_token token);
 t_redir			*new_redir(t_redir_type type, char *file);
 void			add_redir_back(t_redir **list, t_redir *new);
 
+
+// parser_free_utils.c
+void		free_ast(t_node *node);
+
 // print_functions.c
 char		*token_type_to_string(t_token token);
 void        print_tokens(t_token	*all_token, int count);

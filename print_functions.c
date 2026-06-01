@@ -25,7 +25,6 @@ void	print_tokens(t_token	*all_token, int count)
 	while(i < count)
 	{
 		printf("Token %d: \'%s\' (%s)\n", i, all_token[i].value, token_type_to_string(all_token[i]));
-            // free(all_token->value); // need to check for memory leaks
             i++;
 	}
 }
