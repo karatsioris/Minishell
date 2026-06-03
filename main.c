@@ -8,14 +8,9 @@
 #include "token.h"
 #include "libft/libft.h"
 
-
-typedef struct s_shell
-{
-	int		exit_code;
-	int		running;
-	char	*line;
-	char	**envp;
-} t_shell;
+#include "shell.h"
+#include "parse.h"
+#include "validate.h"
 
 int	evaluate_input(char	*line, t_shell	*shell)
 {
@@ -27,24 +22,24 @@ int	evaluate_input(char	*line, t_shell	*shell)
 	printf("Input: %s\n", line);
 	return (0);
 }
-
-char	*token_type_to_string(t_token token)
-{
-	if (token.type == TOKEN_WORD)
-		return ("WORD");
-	else if (token.type == TOKEN_OPERATOR)
-		return ("OPERATOR");
-	else if (token.type == TOKEN_EOF)
-		return ("EOF");
-	return (NULL);
-}
+static const char *g_syntax_errors[] = {
+    [SYNTAX_OK]                   = NULL,
+    [SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
+    [SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
+    [SYNTAX_PIPE_AT_START]        = "syntax error near unexpected token `|'",
+    [SYNTAX_PIPE_AT_END]          = "syntax error near unexpected token `|'",
+    [SYNTAX_DOUBLE_PIPE]          = "syntax error near unexpected token `||'",
+    [SYNTAX_INVALID_OPERATOR]     = "syntax error near unexpected token",
+};
 
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
 	t_lexer		lexer;
-	t_token		token;
-	int 		i = 0;
+	t_token		*all_token;
+	int			token_count;
+	t_syntax_error	err;
+	t_node		*ast;
 
     (void)envp;
     (void)argv;
@@ -53,6 +48,8 @@ int main(int argc, char **argv, char **envp)
 	shell.running = 1;
 	shell.envp  = NULL;
 	shell.line = NULL;
+	all_token = NULL;
+	ast = NULL;
 
     while (shell.running)
     {
@@ -60,22 +57,39 @@ int main(int argc, char **argv, char **envp)
 		
         if (shell.line == NULL)
 			break;
-
+		err = validate_input(shell.line);
+		if (err != SYNTAX_OK)
+		{
+			printf("minishell: %s\n", g_syntax_errors[err]);
+			shell.exit_code = 258;
+			free(shell.line);
+			shell.line = NULL;
+			continue;
+		}
 		if (shell.line[0] != '\0')
 			add_history(shell.line);
+
 		init_lexer(&lexer, shell.line);
-		while (shell.running)
-        {
-            token = tokenize(&lexer);
-            if (token.type == TOKEN_EOF)
-                break ;
-            printf("Token %d: \'%s\' (%s)\n", i, token.value, token_type_to_string(token));
-            free(token.value);
-            i++;
-        }
+		all_token = array_of_token(&lexer, &shell, &token_count);
+		print_tokens(all_token, token_count);
+		
+		printf("\n\n\n");
+		ast = parse_token(all_token, token_count);
+		print_ast(ast, 0, "ROOT");
+		
         shell.exit_code = evaluate_input(shell.line, &shell);
+		free_tokens(all_token, token_count);
+		all_token = NULL;
+		free_ast(ast);
+		ast = NULL;
         free(shell.line);
 		shell.line = NULL;
     }
+	free_tokens(all_token, token_count);
+	all_token = NULL;
+	free_ast(ast);
+	ast = NULL;
+	free(shell.line);
+	shell.line = NULL;
     return (shell.exit_code);
 }
