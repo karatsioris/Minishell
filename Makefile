@@ -1,34 +1,24 @@
-NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Ilibft
-RM = rm -f
-
-SRCS = $(shell find src -type f -name '*.c')
+CFLAGS = -Wall -Wextra -Werror
+TARGET = minishell
+SRCS = main.c lexer.c lexer_utils.c
 OBJS = $(SRCS:.c=.o)
 
-LIBFT_DIR = libft
-LIBFT = $(LIBFT_DIR)/libft.a
+all: $(TARGET)
 
-.PHONY: all clean fclean re
+$(TARGET): $(OBJS) libft/libft.a
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) libft/libft.a -lreadline
 
-all: $(NAME)
-
-$(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBFT)
+libft/libft.a:
+	make -C libft
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(LIBFT):
-	$(MAKE) -C $(LIBFT_DIR)
+re: clean all
 
 clean:
-	$(RM) $(OBJS)
-	$(MAKE) -C $(LIBFT_DIR) clean
+	rm -f $(OBJS) $(TARGET)
+	make -C libft clean
 
-fclean: clean
-	$(RM) $(NAME)
-	$(MAKE) -C $(LIBFT_DIR) fclean
-
-re: fclean all
-
+.PHONY: all re clean
