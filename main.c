@@ -12,6 +12,7 @@
 #include "parse.h"
 #include "validate.h"
 #include "executer.h"
+#include "builtin.h"
 
 
 
@@ -39,7 +40,12 @@ int main(int argc, char **argv, char **envp)
     (void)argc;
 	shell.exit_code = 0;
 	shell.running = 1;
-	shell.envp  = envp;
+	shell.envp  = dup_envp(envp);
+	if (!shell.envp)
+	{
+		write(STDERR_FILENO, "minishell: failed to copy environment\n", 38);
+		return (1);
+	}
 	shell.line = NULL;
 	all_token = NULL;
 	ast = NULL;
@@ -82,5 +88,7 @@ int main(int argc, char **argv, char **envp)
 	ast = NULL;
 	free(shell.line);
 	shell.line = NULL;
+	free_envp(shell.envp);
+	shell.envp = NULL;
     return (shell.exit_code);
 }
