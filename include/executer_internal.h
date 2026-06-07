@@ -4,6 +4,7 @@
 # include <sys/types.h>
 
 # include "executer.h"
+# include "signals.h"
 
 char	*resolve_command_path(const char *command, char **envp);
 int		apply_redirections(t_node *node);

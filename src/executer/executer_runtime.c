@@ -10,14 +10,21 @@
 static int	run_command_node(t_node *node, t_shell *shell)
 {
 	char	*path;
+	int		redir_status;
 
 	if (!node->args || !node->args[0])
 	{
-		if (apply_redirections(node) != 0)
+		redir_status = apply_redirections(node);
+		if (redir_status == -2)
+			return (130);
+		if (redir_status != 0)
 			return (1);
 		return (0);
 	}
-	if (apply_redirections(node) != 0)
+	redir_status = apply_redirections(node);
+	if (redir_status == -2)
+		return (130);
+	if (redir_status != 0)
 		return (1);
 	/* check builtins that can run in child (pwd, env) */
 	{
@@ -48,12 +55,22 @@ int	wait_for_pid(pid_t pid)
 {
 	int	status;
 
-	if (waitpid(pid, &status, 0) < 0)
+	while (waitpid(pid, &status, 0) < 0)
+	{
+		if (errno == EINTR)
+			continue ;
 		return (1);
+	}
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
 	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
+			write(STDOUT_FILENO, "\n", 1);
+		else if (WTERMSIG(status) == SIGQUIT)
+			write(STDERR_FILENO, "Quit: 3\n", 8);
 		return (128 + WTERMSIG(status));
+	}
 	return (1);
 }
 
@@ -76,6 +93,7 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 		left_pid = fork();
 		if (left_pid == 0)
 		{
+			setup_child_signals();
 			if (in_fd != STDIN_FILENO)
 			{
 				dup2(in_fd, STDIN_FILENO);
@@ -99,6 +117,7 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 		right_pid = fork();
 		if (right_pid == 0)
 		{
+			setup_child_signals();
 			if (pipefd[0] != STDIN_FILENO)
 			{
 				dup2(pipefd[0], STDIN_FILENO);
@@ -135,7 +154,13 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 			int saved_in = dup(STDIN_FILENO);
 			int saved_out = dup(STDOUT_FILENO);
 			int rc = 0;
-			if (apply_redirections(node) != 0)
+			int redir_status;
+			redir_status = apply_redirections(node);
+			if (redir_status == -2)
+			{
+				rc = 130;
+			}
+			else if (redir_status != 0)
 			{
 				rc = 1;
 			}
@@ -153,7 +178,10 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 		}
 		pid = fork();
 		if (pid == 0)
+		{
+			setup_child_signals();
 			_exit(execute_node(node, shell, in_fd, out_fd, 0));
+		}
 		if (pid < 0)
 			return (1);
 		return (wait_for_pid(pid));

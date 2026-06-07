@@ -13,6 +13,7 @@
 #include "validate.h"
 #include "executer.h"
 #include "builtin.h"
+#include "signals.h"
 
 
 
@@ -49,13 +50,27 @@ int main(int argc, char **argv, char **envp)
 	shell.line = NULL;
 	all_token = NULL;
 	ast = NULL;
+	rl_catch_signals = 0;
+	rl_catch_sigwinch = 0;
+	setup_interactive_signals();
 
     while (shell.running)
     {
+		signal_reset();
         shell.line = readline("minishell$ ");
 		
-        if (shell.line == NULL)
+		if (shell.line == NULL || (signal_was_interrupted() && shell.line[0] == '\0'))
+		{
+			if (signal_was_interrupted())
+			{
+				shell.exit_code = 130;
+				signal_reset();
+				free(shell.line);
+				shell.line = NULL;
+				continue;
+			}
 			break;
+		}
 		err = validate_input(shell.line);
 		if (err != SYNTAX_OK)
 		{
@@ -74,7 +89,9 @@ int main(int argc, char **argv, char **envp)
 		
 		printf("\n\n\n");
 		ast = parse_token(all_token, token_count);
+		setup_execution_signals();
 		shell.exit_code = execute_ast(ast, &shell);
+		setup_interactive_signals();
 		free_tokens(all_token, token_count);
 		all_token = NULL;
 		free_ast(ast);

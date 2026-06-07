@@ -11,6 +11,7 @@ static int	apply_heredoc(const char *delimiter)
 
 	if (pipe(pipefd) < 0)
 		return (-1);
+	setup_heredoc_signals();
 	while (1)
 	{
 		line = readline("> ");
@@ -24,6 +25,7 @@ static int	apply_heredoc(const char *delimiter)
 		free(line);
 	}
 	close(pipefd[1]);
+	setup_execution_signals();
 	return (pipefd[0]);
 }
 
@@ -46,6 +48,8 @@ int	apply_redirections(t_node *node)
 			fd = apply_heredoc(redir->file);
 		if (fd < 0)
 		{
+			if (fd == -2)
+				return (-2);
 			perror(redir->file);
 			return (1);
 		}
