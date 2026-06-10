@@ -10,9 +10,18 @@ int skip_spaces(const char *input, int i)
 
 t_syntax_error	check_pipes(const char *input)
 {
-	int i = 0;
+	int				i = 0;
+	t_quote_state	state = STATE_NONE;
+	char			quote_char = '\0';
+
 	while(input[i] != '\0')
 	{
+		update_quote_state(input[i], &state, &quote_char);
+		if (state != STATE_NONE)
+		{
+			i++;
+			continue;
+		}
 		if(input[i] == '|')
 		{
 			int next_non_space  = skip_spaces(input, i + 1);
@@ -45,10 +54,19 @@ t_syntax_error  check_after_operator(const char *input, int i)
 
 t_syntax_error	check_redirections(const char *input)
 {
-	int i = 0;
-	t_syntax_error err;
+	int				i = 0;
+	t_syntax_error	err;
+	t_quote_state	state = STATE_NONE;
+	char			quote_char = '\0';
+
 	while(input[i] != '\0')
 	{
+		update_quote_state(input[i], &state, &quote_char);
+		if (state != STATE_NONE)
+		{
+			i++;
+			continue;
+		}
 		if (input[i] == '>' && input[i + 1] == '>')
 		{
 			err = check_after_operator(input, i + 2);

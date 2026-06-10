@@ -100,13 +100,15 @@ static char	*expand_token_value(const char *value, t_shell *shell, t_quote_state
 	return (result);
 }
 
-static void	apply_expansions(t_token *tokens, int count, t_shell *shell)
+static int	apply_expansions(t_token *tokens, int count, t_shell *shell)
 {
 	int	index;
+	int	new_count;
 
 	if (!tokens || !shell)
-		return ;
+		return (count);
 	index = 0;
+	new_count = 0;
 	while (index < count)
 	{
 		if (tokens[index].type == TOKEN_WORD && tokens[index].value)
@@ -118,10 +120,20 @@ static void	apply_expansions(t_token *tokens, int count, t_shell *shell)
 			{
 				free(tokens[index].value);
 				tokens[index].value = expanded;
+				if (tokens[index].quote == STATE_NONE && expanded[0] == '\0')
+				{
+					free(tokens[index].value);
+					index++;
+					continue ;
+				}
 			}
 		}
+		if (new_count != index)
+			tokens[new_count] = tokens[index];
+		new_count++;
 		index++;
 	}
+	return (new_count);
 }
 
 
@@ -129,6 +141,7 @@ t_token     *array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
 {
 	t_token		*all_token;
 	int		num_tokens;
+	int		new_count;
 	int		i= 0;
 
 	num_tokens = count_tokens(lexer->input);
@@ -142,9 +155,10 @@ t_token     *array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
 		// 	break;
 		i++;
 	}
-	apply_expansions(all_token, num_tokens, shell);
+	new_count = apply_expansions(all_token, num_tokens, shell);
+	all_token[new_count] = all_token[num_tokens];
 	if(out_len)
-		*out_len = i;
+		*out_len = new_count + 1;
 	return(all_token);
 }
 

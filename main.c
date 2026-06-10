@@ -27,6 +27,27 @@ static const char *g_syntax_errors[] = {
     [SYNTAX_INVALID_OPERATOR]     = "syntax error near unexpected token",
 };
 
+static char	*read_input_line(int interactive)
+{
+	char	*line;
+	size_t	bufsize;
+	ssize_t	len;
+
+	if (interactive)
+		return (readline("minishell$ "));
+	line = NULL;
+	bufsize = 0;
+	len = getline(&line, &bufsize, stdin);
+	if (len == -1)
+	{
+		free(line);
+		return (NULL);
+	}
+	if (len > 0 && line[len - 1] == '\n')
+		line[len - 1] = '\0';
+	return (line);
+}
+
 int main(int argc, char **argv, char **envp)
 {
     t_shell		shell;
@@ -34,6 +55,7 @@ int main(int argc, char **argv, char **envp)
 	t_token		*all_token;
 	t_node		*ast;
 	int			token_count;
+	int			interactive;
 	t_syntax_error	err;
 
     (void)envp;
@@ -52,13 +74,14 @@ int main(int argc, char **argv, char **envp)
 	ast = NULL;
 	rl_catch_signals = 0;
 	rl_catch_sigwinch = 0;
+	interactive = isatty(STDIN_FILENO);
 	setup_interactive_signals();
 
     while (shell.running)
     {
 		signal_reset();
-        shell.line = readline("minishell$ ");
-		
+        shell.line = read_input_line(interactive);
+
 		if (shell.line == NULL || (signal_was_interrupted() && shell.line[0] == '\0'))
 		{
 			if (signal_was_interrupted())
@@ -74,20 +97,17 @@ int main(int argc, char **argv, char **envp)
 		err = validate_input(shell.line);
 		if (err != SYNTAX_OK)
 		{
-			printf("minishell: %s\n", g_syntax_errors[err]);
+			fprintf(stderr, "minishell: %s\n", g_syntax_errors[err]);
 			shell.exit_code = 258;
 			free(shell.line);
 			shell.line = NULL;
 			continue;
 		}
-		if (shell.line[0] != '\0')
-			add_history(shell.line);        
+		if (interactive && shell.line[0] != '\0')
+			add_history(shell.line);
 
 		init_lexer(&lexer, shell.line);
 		all_token = array_of_token(&lexer, &shell, &token_count);
-		print_tokens(all_token, token_count);
-		
-		printf("\n\n\n");
 		ast = parse_token(all_token, token_count);
 		setup_execution_signals();
 		shell.exit_code = execute_ast(ast, &shell);

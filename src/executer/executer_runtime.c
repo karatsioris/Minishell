@@ -1,7 +1,9 @@
 #include <errno.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include "libft.h"
 
 #include "executer_internal.h"
@@ -41,10 +43,21 @@ static int	run_command_node(t_node *node, t_shell *shell)
 		return (127);
 	}
 	execve(path, node->args, shell->envp);
-	if (errno == EACCES || errno == EISDIR)
-		ft_putstr_fd("Permission denied\n", STDERR_FILENO);
-	else
-		perror(node->args[0]);
+	{
+		struct stat	st;
+
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(node->args[0], STDERR_FILENO);
+		if (stat(path, &st) == 0 && S_ISDIR(st.st_mode))
+			ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
+		else if (errno == EACCES)
+			ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+		else
+		{
+			ft_putstr_fd(": ", STDERR_FILENO);
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+		}
+	}
 	free(path);
 	if (errno == EACCES || errno == EISDIR)
 		return (126);

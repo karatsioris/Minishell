@@ -7,6 +7,24 @@
 #include "builtin.h"
 #include "libft.h"
 
+static int is_valid_exit_arg(const char *arg)
+{
+    int i;
+
+    i = 0;
+    if (arg[i] == '+' || arg[i] == '-')
+        i++;
+    if (!arg[i])
+        return (0);
+    while (arg[i])
+    {
+        if (!ft_isdigit(arg[i]))
+            return (0);
+        i++;
+    }
+    return (1);
+}
+
 static int is_valid_identifier(const char *name)
 {
     int i;
@@ -237,9 +255,15 @@ int run_builtin_parent(t_node *node, t_shell *shell)
     {
         const char *path;
 
-        if (!node->args[1] || node->args[2])
+        if (!node->args[1])
         {
             ft_putstr_fd("minishell: cd: path required\n", STDERR_FILENO);
+            shell->exit_code = 1;
+            return 1;
+        }
+        if (node->args[2])
+        {
+            ft_putstr_fd("minishell: cd: too many arguments\n", STDERR_FILENO);
             shell->exit_code = 1;
             return 1;
         }
@@ -255,10 +279,23 @@ int run_builtin_parent(t_node *node, t_shell *shell)
     }
     else if (ft_strncmp(node->args[0], "exit", ft_strlen("exit") + 1) == 0)
     {
-        int code = 0;
+        if (node->args[1] && node->args[2])
+        {
+            ft_putstr_fd("minishell: exit: too many arguments\n", STDERR_FILENO);
+            shell->exit_code = 1;
+            return 1;
+        }
+        if (node->args[1] && !is_valid_exit_arg(node->args[1]))
+        {
+            ft_putstr_fd("minishell: exit: ", STDERR_FILENO);
+            ft_putstr_fd(node->args[1], STDERR_FILENO);
+            ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
+            shell->exit_code = 2;
+            shell->running = 0;
+            return shell->exit_code;
+        }
         if (node->args[1])
-            code = ft_atoi(node->args[1]);
-        shell->exit_code = code;
+            shell->exit_code = ft_atoi(node->args[1]);
         shell->running = 0;
         return shell->exit_code;
     }
@@ -426,5 +463,7 @@ int run_builtin_child(t_node *node, t_shell *shell)
         }
         return 0;
     }
+    if (is_parent_builtin(node->args[0]))
+        return (run_builtin_parent(node, shell));
     return -1;
 }
