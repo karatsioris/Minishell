@@ -5,7 +5,7 @@ static void	free_redir(t_redir	*redirs)
 {
 	t_redir	*tmp;
 
-	while(redirs != NULL)
+	while (redirs != NULL)
 	{
 		tmp = redirs->next;
 		free(redirs->file);
@@ -20,7 +20,7 @@ void	free_ast(t_node *node)
 	int	i;
 
 	if (!node)
-		return;
+		return ;
     free_ast(node->left);
     free_ast(node->right);
     free_redir(node->redirs);

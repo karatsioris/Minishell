@@ -5,7 +5,7 @@ NAME    = minishell
 SRCS    =   main.c \
             print_functions.c \
             src/lexer/lexer.c \
-             src/lexer/lexer_free_utils.c \
+            src/lexer/lexer_free_utils.c \
             src/lexer/lexer_utils.c \
             src/lexer/lexer_quotes.c \
             src/parser/parser.c \

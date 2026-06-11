@@ -7,6 +7,6 @@ typedef struct s_shell
 	int		running;
 	char	*line;
 	char	**envp;
-} t_shell;
+}	t_shell;
 
 #endif
