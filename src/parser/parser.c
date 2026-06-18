@@ -1,23 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/18 14:39:44 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 14:39:46 by kkaratsi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "parse.h"
 #include "token.h"
 #include "shell.h"
 
 
-t_token	*array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
+t_token	*array_of_token(t_shell *shell, int *out_len)
 {
-	t_token	*all_token;
-	int		num_tokens;
-	int		i;
+	t_lexer		lexer;
+	t_token		*all_token;
+	int			num_tokens;
+	int			i;
+	const char	*input;
 
-	(void)shell;
 	i = 0;
-	num_tokens = count_tokens(lexer->input);
+	input = shell->line;
+	init_lexer(&lexer, input);
+	num_tokens = count_tokens(lexer.input);
 	all_token = malloc(sizeof(t_token) *(num_tokens + 1));
 	if (!all_token)
 		return (NULL);
 	while (i < num_tokens + 1)
 	{
-		all_token[i] = tokenize(lexer);
+		all_token[i] = tokenize(&lexer);
 		i++;
 	}
 	if (out_len)
@@ -27,7 +42,7 @@ t_token	*array_of_token(t_lexer *lexer, t_shell *shell, int *out_len)
 
 t_node	*new_node(t_node_type type)
 {
-	t_node  *node = malloc(sizeof(t_node));
+	t_node	*node;
 
 	node = malloc(sizeof(t_node));
 	if (!node)

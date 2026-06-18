@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer_free_utils.c                                 :+:      :+:    :+:   */
+/*   runtime.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/18 14:42:14 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 17:37:36 by kkaratsi         ###   ########.fr       */
+/*   Created: 2026/06/18 17:06:46 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 17:33:29 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "token.h"
+#ifndef RUNTIME_H
+# define RUNTIME_H
 
-void	free_tokens(t_token *tokens, int count)
-{
-	int	i;
+# include "shell.h"
+# include "token.h"
+# include "parse.h"
 
-	if (!tokens)
-		return ;
-	i = 0;
-	while (i < count)
-	{
-		free(tokens[i].value);
-		tokens[i].value = NULL;
-		i++;
-	}
-	free (tokens);
-}
+int		evaluate_input(char	*line, t_shell	*shell);
+void	initialization(t_shell	*shell);
+void	cleanup(t_shell *shell, t_token	**all_token,
+			int token_count, t_node **ast);
+
+#endif

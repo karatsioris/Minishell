@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/18 14:41:25 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 14:41:30 by kkaratsi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "token.h"
 
-void	init_lexer(t_lexer	*lexer, const char	*input)
+void	init_lexer(t_lexer	*lexer, const char *input)
 {
-	if (!lexer)
+	if (!input)
 		return ;
 	lexer->input = input;
 	lexer->pos = 0;

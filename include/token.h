@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   token.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/18 14:43:12 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 14:45:03 by kkaratsi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef TOKEN_H
 # define TOKEN_H
 
-#include "libft.h"
-#include "stdio.h"
-#include "stdlib.h"
+# include "libft.h"
+# include "stdio.h"
+# include "stdlib.h"
 
 
 typedef enum e_quote_state
@@ -49,7 +61,7 @@ typedef struct s_token
 }	t_token;
 
 // lexer.c
-void						init_lexer(t_lexer *lexer, const char *input);
+void						init_lexer(t_lexer	*lexer, const char *input);
 t_token						create_eof_token(void);
 t_token						tokenize_operator(t_lexer *lexer);
 t_token						tokenize_word(t_lexer *lexer);
