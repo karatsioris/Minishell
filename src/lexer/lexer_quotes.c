@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 14:42:07 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 14:42:09 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2026/06/19 14:15:51 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,5 +69,30 @@ char	*remove_quotes(const char *raw)
 		i++;
 	}
 	result[j] = '\0';
+	return (result);
+}
+
+t_quote_state	scan_word(t_lexer *lexer)
+{
+	t_quote_state	state;
+	t_quote_state	result;
+	char			quote_char;
+
+	state = STATE_NONE;
+	result = STATE_NONE;
+	quote_char = '\0';
+
+	while (lexer->current_char != '\0')
+	{
+		if (state == STATE_NONE
+			&& (is_space(lexer->current_char)
+				|| match_operator(&lexer->input[lexer->pos])))
+			break ;
+		if (result == STATE_NONE
+			&& is_open_or_close_quote(lexer->current_char, state, quote_char))
+			result = return_quote_state(lexer->current_char);
+		update_quote_state(lexer->current_char, &state, &quote_char);
+		advance_lexer(lexer);
+	}
 	return (result);
 }

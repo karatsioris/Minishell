@@ -6,14 +6,13 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 14:41:36 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 14:41:38 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2026/06/19 14:24:38 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "token.h"
 
-static const	t_token_descriptor	g_token_table[] =
-{
+static const t_token_descriptor	g_token_table[] = {
 {"<<",	TOKEN_HEREDOC,		2},
 {">>",	TOKEN_APPEND,		2},
 {"|",	TOKEN_PIPE,			1},
@@ -45,7 +44,6 @@ const t_token_descriptor	*match_operator(const char *input)
 	return (NULL);
 }
 
-
 void	advance_lexer(t_lexer *lexer)
 {
 	if (lexer->input[lexer->pos])
@@ -55,44 +53,31 @@ void	advance_lexer(t_lexer *lexer)
 	}
 }
 
-
-t_quote_state	scan_word(t_lexer *lexer)
+static int	skip_word(const char *input, int i)
 {
 	t_quote_state	state;
-	t_quote_state	result;
 	char			quote_char;
 
 	state = STATE_NONE;
-	result = STATE_NONE;
 	quote_char = '\0';
-
-	while (lexer->current_char != '\0')
+	while (input[i]
+		&& (state != STATE_NONE
+			|| (!is_space(input[i]) && !match_operator(&input[i]))))
 	{
-		if (state == STATE_NONE
-			&& (is_space(lexer->current_char)
-				|| match_operator(&lexer->input[lexer->pos])))
-			break ;
-		if (result == STATE_NONE
-			&& is_open_or_close_quote(lexer->current_char, state, quote_char))
-			result = return_quote_state(lexer->current_char);
-		update_quote_state(lexer->current_char, &state, &quote_char);
-		advance_lexer(lexer);
+		update_quote_state(input[i], &state, &quote_char);
+		i++;
 	}
-	return (result);
+	return (i);
 }
 
 int	count_tokens(const char *input)
 {
 	int							i;
 	int							count;
-	t_quote_state				state;
-	char						quote_char;
 	const t_token_descriptor	*desc;
 
 	i = 0;
 	count = 0;
-	state = STATE_NONE;
-	quote_char = '\0';
 	while (input[i])
 	{
 		while (input[i] && is_space(input[i]))
@@ -103,15 +88,7 @@ int	count_tokens(const char *input)
 		if (desc)
 			i += desc->length;
 		else
-		{
-			while (input[i]
-				&& (state != STATE_NONE
-					|| (!is_space(input[i]) && !match_operator(&input[i]))))
-			{
-				update_quote_state(input[i], &state, &quote_char);
-				i++;
-			}
-		}
+			i = skip_word(input, i);
 		count++;
 	}
 	return (count);

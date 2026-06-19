@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 14:43:12 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 14:45:03 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2026/06/19 14:05:19 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,11 +73,11 @@ void						free_tokens(t_token *tokens, int count);
 // lexer_utils.c
 const t_token_descriptor	*match_operator(const char *input);
 int							is_space(char c);
-t_quote_state				scan_word(t_lexer *lexer);
 void						advance_lexer(t_lexer *lexer);
 int							count_tokens(const char *input);
 
 // lexer_quotes.c
+t_quote_state				scan_word(t_lexer *lexer);
 t_quote_state				return_quote_state(char quote_char);
 int							is_open_or_close_quote(char c, t_quote_state state,
 								char quote_char);

@@ -12,6 +12,7 @@ SRCS    =   main.c \
             src/parser/parser.c \
             src/parser/parser_utils.c \
             src/parser/parser_free_utils.c \
+             src/parser/parser_cmd.c \
             src/validate/validate.c \
             src/validate/validate_utils.c
 

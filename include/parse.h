@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 14:43:28 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 14:44:49 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2026/06/19 14:10:50 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ typedef struct s_node
 }	t_node;
 
 // parser.c
-t_token		*array_of_token(t_shell *shell, int *out_len);
-t_node		*new_node(t_node_type type);
-t_node		*cmd_node(t_token *tokens, int start, int end);
-t_node		*parse_subtokens(t_token *tokens, int start, int end);
-t_node		*parse_token(t_token *all_token, int count);
+t_token			*array_of_token(t_shell *shell, int *out_len);
+t_node			*new_node(t_node_type type);
+t_node			*parse_subtokens(t_token *tokens, int start, int end);
+t_node			*parse_token(t_token *all_token, int count);
+t_redir			*build_redir_list(t_token *tokens, int start, int end);
 
 // parser_utils.c
 int				find_pipe(t_token *tokens, int start, int end);
@@ -62,12 +62,16 @@ void			add_redir_back(t_redir **list, t_redir *new);
 
 
 // parser_free_utils.c
-void		free_ast(t_node *node);
+void			free_ast(t_node *node);
+
+// parser_cmd.c
+t_node			*cmd_node(t_token *tokens, int start, int end);
+char			**build_args_array(t_token *tokens, int start, int end);
 
 // print_functions.c
-char		*token_type_to_string(t_token token);
-void		print_tokens(t_token	*all_token, int count);
-void		print_ast(t_node *node, int level, const char *label);
-void		print_redirs(t_redir *redir);
+char			*token_type_to_string(t_token token);
+void			print_tokens(t_token	*all_token, int count);
+void			print_ast(t_node *node, int level, const char *label);
+void			print_redirs(t_redir *redir);
 
 #endif

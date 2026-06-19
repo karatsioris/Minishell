@@ -6,7 +6,7 @@
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 14:39:44 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 14:39:46 by kkaratsi         ###   ########.fr       */
+/*   Updated: 2026/06/19 13:41:52 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,44 +55,10 @@ t_node	*new_node(t_node_type type)
 	return (node);
 }
 
-char	**build_args_array(t_token *tokens, int start, int end)
-{
-	char	**args;
-	int		arg_count;
-	int		i;
-	int		j;
-
-	i = start;
-	arg_count = 0;
-	while (i < end)
-	{
-		if (tokens[i].type != TOKEN_WORD)
-			i++;
-		else if (tokens[i].type == TOKEN_WORD)
-			arg_count++;
-		i++;
-	}
-	args = malloc(sizeof(char *) * (arg_count + 1));
-	if (!args)
-		return (NULL);
-	j = 0;
-	i = start;
-	while ( i < end)
-	{
-		if (tokens[i].type == TOKEN_WORD)
-			args[j++] = ft_strdup(tokens[i].value);
-		else
-			i++;
-		i++;
-	}
-	args[j] = NULL;
-	return (args);
-
-}
-
 t_redir	*build_redir_list(t_token *tokens, int start, int end)
 {
 	t_redir	*head;
+	t_redir	*r;
 	int		i;
 
 	i = start;
@@ -101,27 +67,14 @@ t_redir	*build_redir_list(t_token *tokens, int start, int end)
 	{
 		if (tokens[i].type != TOKEN_WORD)
 		{
-			t_redir *r = new_redir(get_redir_type(tokens[i]), tokens[i + 1].value);
+			r = new_redir(get_redir_type(tokens[i]),
+					tokens[i + 1].value);
 			add_redir_back(&head, r);
 			i++;	// Skip filename
 		}
 		i++;
 	}
 	return (head);
-}
-
-t_node	*cmd_node(t_token *tokens, int start, int end)
-{
-	t_node	*node;
-
-	node = new_node(NODE_CMD);
-	if (!node)
-		return (NULL);
-
-	node->args = build_args_array(tokens, start, end);
-	node->redirs = build_redir_list(tokens, start, end);
-
-	return (node);
 }
 
 
@@ -147,7 +100,7 @@ t_node	*parse_subtokens(t_token *tokens, int start, int end)
 }
 
 
-t_node	*parse_token(t_token    *all_token, int count)
+t_node	*parse_token(t_token *all_token, int count)
 {
 	if (!all_token || count <= 0)
 		return (NULL);
