@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer_free_utils.c                                 :+:      :+:    :+:   */
+/*   memory.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/18 14:42:14 by kkaratsi          #+#    #+#             */
-/*   Updated: 2026/06/18 17:37:36 by kkaratsi         ###   ########.fr       */
+/*   Created: 2026/06/18 14:43:35 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 14:44:42 by kkaratsi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "token.h"
 
-void	free_tokens(t_token *tokens, int count)
+#ifndef MEMORY_H
+# define MEMORY_H
+
+# include "stdlib.h"
+
+typedef struct s_memory
 {
-	int	i;
+	size_t	capacity;
+	size_t	size;
+}	t_memory;
 
-	if (!tokens)
-		return ;
-	i = 0;
-	while (i < count)
-	{
-		free(tokens[i].value);
-		tokens[i].value = NULL;
-		i++;
-	}
-	free (tokens);
-}
+#endif

@@ -4,14 +4,17 @@ NAME    = minishell
 
 SRCS    =   main.c \
             print_functions.c \
+            src/runtime/main_utils.c \
             src/lexer/lexer.c \
-             src/lexer/lexer_free_utils.c \
+            src/lexer/lexer_free_utils.c \
             src/lexer/lexer_utils.c \
             src/lexer/lexer_quotes.c \
             src/parser/parser.c \
             src/parser/parser_utils.c \
             src/parser/parser_free_utils.c \
-            src/validate/validate.c
+             src/parser/parser_cmd.c \
+            src/validate/validate.c \
+            src/validate/validate_utils.c
 
 OBJS    = $(SRCS:.c=.o)
 
