@@ -16,14 +16,14 @@ static int	run_command_node(t_node *node, t_shell *shell)
 
 	if (!node->args || !node->args[0])
 	{
-		redir_status = apply_redirections(node);
+		redir_status = apply_redirections(node, shell);
 		if (redir_status == -2)
 			return (130);
 		if (redir_status != 0)
 			return (1);
 		return (0);
 	}
-	redir_status = apply_redirections(node);
+	redir_status = apply_redirections(node, shell);
 	if (redir_status == -2)
 		return (130);
 	if (redir_status != 0)
@@ -168,7 +168,7 @@ int	execute_node(t_node *node, t_shell *shell, int in_fd, int out_fd, int fork_c
 			int saved_out = dup(STDOUT_FILENO);
 			int rc = 0;
 			int redir_status;
-			redir_status = apply_redirections(node);
+			redir_status = apply_redirections(node, shell);
 			if (redir_status == -2)
 			{
 				rc = 130;

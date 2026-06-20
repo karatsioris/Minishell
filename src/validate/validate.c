@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "validate.h"
+#include "libft.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <readline/readline.h>
@@ -28,7 +29,7 @@ static char	*append_char(char *line, char c)
 	return (joined);
 }
 
-static char	*read_noninteractive_line(void)
+char	*read_noninteractive_line(void)
 {
 	char	*line;
 	char	buf[1];

@@ -3,10 +3,11 @@
 #include <unistd.h>
 
 #include "executer_internal.h"
+#include "validate.h"
 
-static int	apply_heredoc(const char *delimiter)
+static int	apply_heredoc(const char *delimiter, t_shell *shell)
 {
-	int	pipefd[2];
+	int		pipefd[2];
 	char	*line;
 
 	if (pipe(pipefd) < 0)
@@ -14,7 +15,10 @@ static int	apply_heredoc(const char *delimiter)
 	setup_heredoc_signals();
 	while (1)
 	{
-		line = readline("> ");
+		if (shell->interactive)
+			line = readline("> ");
+		else
+			line = read_noninteractive_line();
 		if (!line || ft_strncmp(line, delimiter, ft_strlen(delimiter) + 1) == 0)
 		{
 			free(line);
@@ -29,7 +33,7 @@ static int	apply_heredoc(const char *delimiter)
 	return (pipefd[0]);
 }
 
-int	apply_redirections(t_node *node)
+int	apply_redirections(t_node *node, t_shell *shell)
 {
 	t_redir	*redir;
 	int		fd;
@@ -45,7 +49,7 @@ int	apply_redirections(t_node *node)
 		else if (redir->type == APPEND)
 			fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 		else if (redir->type == HEREDOC)
-			fd = apply_heredoc(redir->file);
+			fd = apply_heredoc(redir->file, shell);
 		if (fd < 0)
 		{
 			if (fd == -2)

@@ -31,6 +31,7 @@ typedef enum e_syntax_error
 t_syntax_error	input_validate(t_shell	*shell);
 const char		*input_readline(t_shell	*shell);
 int				input_handle_error(t_syntax_error	err, t_shell *shell);
+char			*read_noninteractive_line(void);
 
 // validate_utils.c
 int				skip_spaces(const char *input, int i);

@@ -37,8 +37,12 @@ static int	count_words(t_token *tokens, int start, int end)
 	while (i < end)
 	{
 		if (tokens[i].type == TOKEN_WORD)
+		{
 			count++;
-		i++;
+			i++;
+		}
+		else
+			i += 2;
 	}
 	return (count);
 }
@@ -53,8 +57,12 @@ static char	**fill_args(t_token *tokens, int start, int end, char **args)
 	while (i < end)
 	{
 		if (tokens[i].type == TOKEN_WORD)
+		{
 			args[j++] = ft_strdup(tokens[i].value);
-		i++;
+			i++;
+		}
+		else
+			i += 2;
 	}
 	args[j] = NULL;
 	return (args);
