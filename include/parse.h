@@ -37,7 +37,6 @@ typedef struct s_redir
 	struct s_redir	*next;
 }	t_redir;
 
-
 typedef struct s_node
 {
 	t_node_type		type;
@@ -60,18 +59,11 @@ t_redir_type	get_redir_type(t_token token);
 t_redir			*new_redir(t_redir_type type, char *file);
 void			add_redir_back(t_redir **list, t_redir *new);
 
-
 // parser_free_utils.c
 void			free_ast(t_node *node);
 
 // parser_cmd.c
 t_node			*cmd_node(t_token *tokens, int start, int end);
 char			**build_args_array(t_token *tokens, int start, int end);
-
-// print_functions.c
-char			*token_type_to_string(t_token token);
-void			print_tokens(t_token	*all_token, int count);
-void			print_ast(t_node *node, int level, const char *label);
-void			print_redirs(t_redir *redir);
 
 #endif

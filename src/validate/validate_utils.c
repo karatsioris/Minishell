@@ -20,42 +20,6 @@ int	skip_spaces(const char *input, int i)
 	return (i);
 }
 
-t_syntax_error	check_pipes(const char *input)
-{
-	int				i;
-	int				next_non_space;
-	int				first_non_space;
-	t_quote_state	state;
-	char			quote_char;
-
-	i = 0;
-	state = STATE_NONE;
-	quote_char = '\0';
-	while (input[i] != '\0')
-	{
-		update_quote_state(input[i], &state, &quote_char);
-		if (state != STATE_NONE)
-		{
-			i++;
-			continue ;
-		}
-		if (input[i] == '|')
-		{
-			next_non_space = skip_spaces(input, i + 1);
-			first_non_space = skip_spaces(input, 0);
-
-			if (input[next_non_space] == '|')
-				return (SYNTAX_DOUBLE_PIPE);
-			else if (first_non_space == i)
-				return (SYNTAX_PIPE_AT_START);
-			else if (input[next_non_space] == '\0')
-				return (SYNTAX_PIPE_AT_END);
-		}
-		i++;
-	}
-	return (SYNTAX_OK);
-}
-
 t_syntax_error	check_after_operator(const char *input, int i)
 {
 	int	next;
@@ -67,45 +31,6 @@ t_syntax_error	check_after_operator(const char *input, int i)
 		return (SYNTAX_INVALID_OPERATOR);
 	if (input[next] == '>' || input[next] == '<')
 		return (SYNTAX_INVALID_OPERATOR);
-	return (SYNTAX_OK);
-}
-
-t_syntax_error	check_redirections(const char *input)
-{
-	int				i;
-	t_syntax_error	err;
-	t_quote_state	state;
-	char			quote_char;
-
-	i = 0;
-	state = STATE_NONE;
-	quote_char = '\0';
-	while (input[i] != '\0')
-	{
-		update_quote_state(input[i], &state, &quote_char);
-		if (state != STATE_NONE)
-		{
-			i++;
-			continue ;
-		}
-		if ((input[i] == '>' && input[i + 1] == '>')
-			|| (input[i] == '<' && input[i + 1] == '<'))
-		{
-			err = check_after_operator(input, i + 2);
-			if (err != SYNTAX_OK)
-				return (err);
-			i += 2;
-		}
-		else if (input[i] == '>' || input[i] == '<')
-		{
-			err = check_after_operator(input, i + 1);
-			if (err != SYNTAX_OK)
-				return (err);
-			i++;
-		}
-		else
-			i++;
-	}
 	return (SYNTAX_OK);
 }
 

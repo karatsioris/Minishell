@@ -20,10 +20,8 @@ t_node	*cmd_node(t_token *tokens, int start, int end)
 	node = new_node(NODE_CMD);
 	if (!node)
 		return (NULL);
-
 	node->args = build_args_array(tokens, start, end);
 	node->redirs = build_redir_list(tokens, start, end);
-
 	return (node);
 }
 

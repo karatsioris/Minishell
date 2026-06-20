@@ -3,12 +3,13 @@ CFLAGS  = -Wall -Wextra -Werror -I include -I libft
 NAME    = minishell
 
 SRCS    =   main.c \
-            print_functions.c \
             src/runtime/main_utils.c \
             src/executer/executer.c \
             src/executer/executer_path.c \
             src/executer/executer_redir.c \
-            src/executer/executer_runtime.c \
+            src/executer/executer_exec.c \
+            src/executer/executer_pipe.c \
+            src/executer/executer_dispatch.c \
             src/executer/signals.c \
             src/executer/builtin.c \
             src/lexer/lexer.c \
@@ -22,7 +23,9 @@ SRCS    =   main.c \
             src/parser/parser_expand.c \
             src/parser/parser_expand_var.c \
             src/validate/validate.c \
-            src/validate/validate_utils.c
+            src/validate/validate_utils.c \
+            src/validate/validate_pipe.c \
+            src/validate/validate_redir.c
 
 OBJS    = $(SRCS:.c=.o)
 all: $(NAME)

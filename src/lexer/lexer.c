@@ -42,11 +42,9 @@ t_token	tokenize_operator(t_lexer	*lexer)
 	desc = match_operator(&lexer->input[lexer->pos]);
 	if (!desc)
 		return (create_eof_token());
-
 	token.type = desc->type;
 	token.value = ft_substr(lexer->input, lexer->pos, desc->length);
 	token.quote = STATE_NONE;
-
 	lexer->pos += desc->length;
 	lexer->current_char = lexer->input[lexer->pos];
 	return (token);
@@ -71,10 +69,8 @@ t_token	tokenize(t_lexer	*lexer)
 {
 	while (lexer->current_char && is_space(lexer->current_char))
 		advance_lexer(lexer);
-
 	if (lexer->current_char == '\0')
 		return (create_eof_token());
-
 	if (match_operator(&lexer->input[lexer->pos]))
 		return (tokenize_operator(lexer));
 	return (tokenize_word(lexer));

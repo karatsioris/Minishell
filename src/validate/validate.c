@@ -54,7 +54,7 @@ char	*read_noninteractive_line(void)
 	return (line);
 }
 
-static const char *g_syntax_errors[] = {
+static const char	*g_syntax_errors[] = {
 [SYNTAX_OK] = NULL,
 [SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
 [SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
@@ -70,7 +70,6 @@ t_syntax_error	input_validate(t_shell	*shell)
 
 	if (shell->line == NULL)
 		return (SYNTAX_OK);
-
 	err = check_pipes(shell->line);
 	if (err != SYNTAX_OK)
 		return (err);
@@ -80,7 +79,6 @@ t_syntax_error	input_validate(t_shell	*shell)
 	err = check_quotes(shell->line);
 	if (err != SYNTAX_OK)
 		return (err);
-
 	return (SYNTAX_OK);
 }
 

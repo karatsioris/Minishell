@@ -57,10 +57,8 @@ char	*remove_quotes(const char *raw)
 	j = 0;
 	state = STATE_NONE;
 	result = malloc(ft_strlen(raw) + 1);
-
 	if (!result)
 		return (NULL);
-
 	while (raw[i] != '\0')
 	{
 		if (!is_open_or_close_quote(raw[i], state, quote_char))
@@ -81,7 +79,6 @@ t_quote_state	scan_word(t_lexer *lexer)
 	state = STATE_NONE;
 	result = STATE_NONE;
 	quote_char = '\0';
-
 	while (lexer->current_char != '\0')
 	{
 		if (state == STATE_NONE

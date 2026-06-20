@@ -17,7 +17,6 @@
 # include "stdio.h"
 # include "stdlib.h"
 
-
 typedef enum e_quote_state
 {
 	STATE_NONE,
@@ -42,7 +41,6 @@ typedef struct s_token_descriptor
 	t_token_type	type;
 	int				length;
 }	t_token_descriptor;
-
 
 //reading
 typedef struct s_lexer
@@ -85,4 +83,4 @@ void						update_quote_state(char c, t_quote_state *state,
 								char *quote_char);
 char						*remove_quotes(const char *raw);
 
-# endif
+#endif

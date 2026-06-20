@@ -42,11 +42,28 @@ char	*expand_token_value(const char *value, t_shell *shell,
 	return (result);
 }
 
+static int	expand_one_token(t_token *token, t_shell *shell)
+{
+	char	*expanded;
+
+	expanded = expand_token_value(token->value, shell, token->quote);
+	if (expanded)
+	{
+		free(token->value);
+		token->value = expanded;
+	}
+	if (token->quote == STATE_NONE && token->value[0] == '\0')
+	{
+		free(token->value);
+		return (0);
+	}
+	return (1);
+}
+
 int	apply_expansions(t_token *tokens, int count, t_shell *shell)
 {
-	int		index;
-	int		new_count;
-	char	*expanded;
+	int	index;
+	int	new_count;
 
 	if (!tokens || !shell)
 		return (count);
@@ -54,22 +71,11 @@ int	apply_expansions(t_token *tokens, int count, t_shell *shell)
 	new_count = 0;
 	while (index < count)
 	{
-		if (tokens[index].type == TOKEN_WORD && tokens[index].value)
+		if (tokens[index].type == TOKEN_WORD && tokens[index].value
+			&& !expand_one_token(&tokens[index], shell))
 		{
-			expanded = expand_token_value(tokens[index].value, shell,
-					tokens[index].quote);
-			if (expanded)
-			{
-				free(tokens[index].value);
-				tokens[index].value = expanded;
-			}
-			if (tokens[index].quote == STATE_NONE
-				&& tokens[index].value[0] == '\0')
-			{
-				free(tokens[index].value);
-				index++;
-				continue ;
-			}
+			index++;
+			continue ;
 		}
 		if (new_count != index)
 			tokens[new_count] = tokens[index];

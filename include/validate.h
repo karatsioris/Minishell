@@ -35,10 +35,13 @@ char			*read_noninteractive_line(void);
 
 // validate_utils.c
 int				skip_spaces(const char *input, int i);
-t_syntax_error	check_pipes(const char *input);
 t_syntax_error	check_after_operator(const char *input, int i);
-t_syntax_error	check_redirections(const char *input);
 t_syntax_error	check_quotes(const char *input);
 
+// validate_pipe.c
+t_syntax_error	check_pipes(const char *input);
+
+// validate_redir.c
+t_syntax_error	check_redirections(const char *input);
 
 #endif

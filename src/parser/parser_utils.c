@@ -34,7 +34,6 @@ t_redir_type	get_redir_type(t_token token)
 		return (APPEND);
 	else if (ft_strncmp(token.value, "<", 1) == 0)
 		return (REDIR_IN);
-
 	return (REDIR_OUT);
 }
 

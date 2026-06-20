@@ -17,16 +17,14 @@
 
 t_token	*array_of_token(t_shell *shell, int *out_len)
 {
-	t_lexer		lexer;
-	t_token		*all_token;
-	int			num_tokens;
-	int			new_count;
-	int			i;
-	const char	*input;
+	t_lexer	lexer;
+	t_token	*all_token;
+	int		num_tokens;
+	int		new_count;
+	int		i;
 
 	i = 0;
-	input = shell->line;
-	init_lexer(&lexer, input);
+	init_lexer(&lexer, shell->line);
 	num_tokens = count_tokens(lexer.input);
 	all_token = malloc(sizeof(t_token) * (num_tokens + 1));
 	if (!all_token)
@@ -73,13 +71,12 @@ t_redir	*build_redir_list(t_token *tokens, int start, int end)
 			r = new_redir(get_redir_type(tokens[i]),
 					tokens[i + 1].value);
 			add_redir_back(&head, r);
-			i++;	// Skip filename
+			i++;
 		}
 		i++;
 	}
 	return (head);
 }
-
 
 t_node	*parse_subtokens(t_token *tokens, int start, int end)
 {
@@ -89,7 +86,6 @@ t_node	*parse_subtokens(t_token *tokens, int start, int end)
 	if (start >= end)
 		return (NULL);
 	pipe_index = find_pipe(tokens, start, end);
-
 	if (pipe_index >= 0)
 	{
 		root = new_node(NODE_PIPE);
@@ -101,7 +97,6 @@ t_node	*parse_subtokens(t_token *tokens, int start, int end)
 	}
 	return (cmd_node(tokens, start, end));
 }
-
 
 t_node	*parse_token(t_token *all_token, int count)
 {

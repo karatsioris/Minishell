@@ -54,7 +54,10 @@ static char	*expand_var_name(const char *value, int *index, t_shell *shell,
 		name_len++;
 	env_value = lookup_env_value(shell->envp, value + name_start,
 			name_len - name_start);
-	result = append_str(result, env_value ? env_value : "");
+	if (env_value)
+		result = append_str(result, env_value);
+	else
+		result = append_str(result, "");
 	*index = name_len;
 	return (result);
 }
