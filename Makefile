@@ -10,8 +10,16 @@ SRCS    =   main.c \
             src/executer/executer_exec.c \
             src/executer/executer_pipe.c \
             src/executer/executer_dispatch.c \
-            src/executer/signals.c \
-            src/executer/builtin.c \
+            src/executer/signals_setup.c \
+            src/executer/signals_state.c \
+            src/executer/builtin_env_utils.c \
+            src/executer/builtin_env_set.c \
+            src/executer/builtin_env_dup.c \
+            src/executer/builtin_validators.c \
+            src/executer/builtin_cd_exit.c \
+            src/executer/builtin_export_print.c \
+            src/executer/builtin_export_unset.c \
+            src/executer/builtin_child.c \
             src/lexer/lexer.c \
             src/lexer/lexer_free_utils.c \
             src/lexer/lexer_utils.c \

@@ -7,5 +7,6 @@ void	setup_heredoc_signals(void);
 void	setup_child_signals(void);
 int		signal_was_interrupted(void);
 void	signal_reset(void);
+void	prompt_sigint_handler(int signo);
 
 #endif

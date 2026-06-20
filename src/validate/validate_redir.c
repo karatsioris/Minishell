@@ -32,19 +32,14 @@ t_syntax_error	check_redirections(const char *input)
 	while (input[i] != '\0')
 	{
 		update_quote_state(input[i], &state, &quote_char);
-		if (state != STATE_NONE)
+		if (state == STATE_NONE && (input[i] == '>' || input[i] == '<'))
 		{
-			i++;
-			continue ;
+			err = check_redir_op(input, i, &i);
+			if (err != SYNTAX_OK)
+				return (err);
 		}
-		if (input[i] != '>' && input[i] != '<')
-		{
+		else
 			i++;
-			continue ;
-		}
-		err = check_redir_op(input, i, &i);
-		if (err != SYNTAX_OK)
-			return (err);
 	}
 	return (SYNTAX_OK);
 }

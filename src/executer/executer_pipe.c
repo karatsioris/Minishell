@@ -3,10 +3,11 @@
 
 #include "executer_internal.h"
 
-static pid_t	spawn_left(t_node *node, t_shell *shell, t_fds fds, int *pipefd)
+static pid_t	spawn_left(t_node *node, t_shell *shell, t_fds fds,
+		int *pipefd)
 {
 	pid_t	pid;
-	int		status;
+	t_fds	inner;
 
 	pid = fork();
 	if (pid != 0)
@@ -23,14 +24,16 @@ static pid_t	spawn_left(t_node *node, t_shell *shell, t_fds fds, int *pipefd)
 		close(pipefd[1]);
 	}
 	close(pipefd[0]);
-	status = execute_node(node, shell, (t_fds){STDIN_FILENO, STDOUT_FILENO}, 0);
-	_exit(status);
+	inner.in = STDIN_FILENO;
+	inner.out = STDOUT_FILENO;
+	_exit(execute_node(node, shell, inner, 0));
 }
 
-static pid_t	spawn_right(t_node *node, t_shell *shell, t_fds fds, int *pipefd)
+static pid_t	spawn_right(t_node *node, t_shell *shell, t_fds fds,
+		int *pipefd)
 {
 	pid_t	pid;
-	int		status;
+	t_fds	inner;
 
 	pid = fork();
 	if (pid != 0)
@@ -47,8 +50,9 @@ static pid_t	spawn_right(t_node *node, t_shell *shell, t_fds fds, int *pipefd)
 		close(fds.out);
 	}
 	close(pipefd[1]);
-	status = execute_node(node, shell, (t_fds){STDIN_FILENO, STDOUT_FILENO}, 0);
-	_exit(status);
+	inner.in = STDIN_FILENO;
+	inner.out = STDOUT_FILENO;
+	_exit(execute_node(node, shell, inner, 0));
 }
 
 int	run_pipe_node(t_node *node, t_shell *shell, t_fds fds)

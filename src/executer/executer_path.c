@@ -7,7 +7,7 @@ static void	free_str_array(char **array)
 	int	index;
 
 	if (!array)
-		return;
+		return ;
 	index = 0;
 	while (array[index])
 	{
@@ -41,8 +41,26 @@ static char	*get_env_value(char **envp, const char *key)
 	index = 0;
 	while (envp[index])
 	{
-		if (ft_strncmp(envp[index], key, key_len) == 0 && envp[index][key_len] == '=')
+		if (ft_strncmp(envp[index], key, key_len) == 0
+			&& envp[index][key_len] == '=')
 			return (envp[index] + key_len + 1);
+		index++;
+	}
+	return (NULL);
+}
+
+static char	*search_paths(char **paths, const char *command)
+{
+	int		index;
+	char	*candidate;
+
+	index = 0;
+	while (paths[index])
+	{
+		candidate = join_path(paths[index], command);
+		if (candidate && access(candidate, X_OK) == 0)
+			return (candidate);
+		free(candidate);
 		index++;
 	}
 	return (NULL);
@@ -52,8 +70,7 @@ char	*resolve_command_path(const char *command, char **envp)
 {
 	char	**paths;
 	char	*path_env;
-	char	*candidate;
-	int		index;
+	char	*found;
 
 	if (!command || command[0] == '\0')
 		return (NULL);
@@ -65,18 +82,7 @@ char	*resolve_command_path(const char *command, char **envp)
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
-	index = 0;
-	while (paths[index])
-	{
-		candidate = join_path(paths[index], command);
-		if (candidate && access(candidate, X_OK) == 0)
-		{
-			free_str_array(paths);
-			return (candidate);
-		}
-		free(candidate);
-		index++;
-	}
+	found = search_paths(paths, command);
 	free_str_array(paths);
-	return (NULL);
+	return (found);
 }
