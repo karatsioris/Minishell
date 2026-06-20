@@ -57,7 +57,7 @@ void print_ast(t_node *node, int level, const char *label)
     }
 
     // Print the branch connector
-    if (label && strcmp(label, "Root") != 0)
+    if (label && ft_strncmp(label, "Root", 5) != 0)
 	{
         printf("├── %s(lvl %d) ", label, level);
     }

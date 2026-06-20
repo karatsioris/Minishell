@@ -180,14 +180,35 @@ static int unset_env_value(t_shell *shell, const char *name)
     return (0);
 }
 
-static int compare_env_entries(const void *a, const void *b)
+static int env_entry_cmp(const char *a, const char *b)
 {
-    const char *const *left;
-    const char *const *right;
+    while (*a && *a == *b)
+    {
+        a++;
+        b++;
+    }
+    return ((unsigned char)*a - (unsigned char)*b);
+}
 
-    left = (const char *const *)a;
-    right = (const char *const *)b;
-    return (strcmp(*left, *right));
+static void sort_env_entries(char **sorted, int count)
+{
+    int     i;
+    int     j;
+    char    *tmp;
+
+    i = 1;
+    while (i < count)
+    {
+        j = i;
+        while (j > 0 && env_entry_cmp(sorted[j - 1], sorted[j]) > 0)
+        {
+            tmp = sorted[j - 1];
+            sorted[j - 1] = sorted[j];
+            sorted[j] = tmp;
+            j--;
+        }
+        i++;
+    }
 }
 
 char **dup_envp(char **envp)
@@ -322,7 +343,7 @@ int run_builtin_parent(t_node *node, t_shell *shell)
                 i++;
             }
             sorted[count] = NULL;
-            qsort(sorted, count, sizeof(char *), compare_env_entries);
+            sort_env_entries(sorted, count);
             j = 0;
             while (j < count)
             {

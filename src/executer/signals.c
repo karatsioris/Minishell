@@ -5,12 +5,11 @@
 
 #include "signals.h"
 
-static volatile sig_atomic_t g_sigint_received = 0;
+static volatile sig_atomic_t g_signo = 0;
 
 static void prompt_sigint_handler(int signo)
 {
-	(void)signo;
-	g_sigint_received = 1;
+	g_signo = signo;
 	write(STDOUT_FILENO, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);
@@ -31,7 +30,7 @@ void setup_interactive_signals(void)
 {
 	set_handler(SIGINT, prompt_sigint_handler);
 	set_handler(SIGQUIT, SIG_IGN);
-	g_sigint_received = 0;
+	g_signo = 0;
 }
 
 void setup_execution_signals(void)
@@ -44,7 +43,7 @@ void setup_heredoc_signals(void)
 {
 	set_handler(SIGINT, SIG_DFL);
 	set_handler(SIGQUIT, SIG_IGN);
-	g_sigint_received = 0;
+	g_signo = 0;
 }
 
 void setup_child_signals(void)
@@ -55,10 +54,10 @@ void setup_child_signals(void)
 
 int signal_was_interrupted(void)
 {
-	return (g_sigint_received != 0);
+	return (g_signo != 0);
 }
 
 void signal_reset(void)
 {
-	g_sigint_received = 0;
+	g_signo = 0;
 }
