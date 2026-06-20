@@ -1,158 +1,110 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   validate.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/18 14:39:30 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 16:33:37 by kkaratsi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "validate.h"
-#include "token.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
-int skip_spaces(const char *input, int i)
+static char	*append_char(char *line, char c)
 {
-	while (input[i] != '\0' && input[i] == ' ')
-		i++;
-    return (i);
+	char	suffix[2];
+	char	*joined;
+
+	suffix[0] = c;
+	suffix[1] = '\0';
+	joined = ft_strjoin(line, suffix);
+	free(line);
+	return (joined);
 }
 
-t_syntax_error	check_pipes(const char *input)
+static char	*read_noninteractive_line(void)
 {
-	int				i = 0;
-	t_quote_state	state = STATE_NONE;
-	char			quote_char = '\0';
+	char	*line;
+	char	buf[1];
+	ssize_t	got_any;
 
-	while(input[i] != '\0')
+	line = ft_strdup("");
+	if (!line)
+		return (NULL);
+	got_any = read(STDIN_FILENO, buf, 1);
+	while (got_any > 0 && buf[0] != '\n')
 	{
-		update_quote_state(input[i], &state, &quote_char);
-		if (state != STATE_NONE)
-		{
-			i++;
-			continue;
-		}
-		if(input[i] == '|')
-		{
-			int next_non_space  = skip_spaces(input, i + 1);
-			int first_non_space = skip_spaces(input, 0);
-
-			if (input[next_non_space] == '|')
-				return (SYNTAX_DOUBLE_PIPE);
-			else if (first_non_space == i)
-				return (SYNTAX_PIPE_AT_START);
-			else if (input[next_non_space] == '\0')
-				return (SYNTAX_PIPE_AT_END);
-		}
-		i++;
+		line = append_char(line, buf[0]);
+		if (!line)
+			return (NULL);
+		got_any = read(STDIN_FILENO, buf, 1);
 	}
-	return(SYNTAX_OK);
-}
-t_syntax_error  check_after_operator(const char *input, int i)
-{
-    int next;
-
-    next = skip_spaces(input, i);
-    if (input[next] == '\0')
-        return (SYNTAX_INVALID_OPERATOR);
-    if (input[next] == '|')
-        return (SYNTAX_INVALID_OPERATOR);
-    if (input[next] == '>' || input[next] == '<')
-        return (SYNTAX_INVALID_OPERATOR);
-    return (SYNTAX_OK);
+	if (got_any <= 0 && line[0] == '\0')
+	{
+		free(line);
+		return (NULL);
+	}
+	return (line);
 }
 
-t_syntax_error	check_redirections(const char *input)
+static const char *g_syntax_errors[] = {
+[SYNTAX_OK] = NULL,
+[SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
+[SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
+[SYNTAX_PIPE_AT_START] = "syntax error near unexpected token `|'",
+[SYNTAX_PIPE_AT_END] = "syntax error near unexpected token `|'",
+[SYNTAX_DOUBLE_PIPE] = "syntax error near unexpected token `||'",
+[SYNTAX_INVALID_OPERATOR] = "syntax error near unexpected token",
+};
+
+t_syntax_error	input_validate(t_shell	*shell)
 {
-	int				i = 0;
 	t_syntax_error	err;
-	t_quote_state	state = STATE_NONE;
-	char			quote_char = '\0';
 
-	while(input[i] != '\0')
-	{
-		update_quote_state(input[i], &state, &quote_char);
-		if (state != STATE_NONE)
-		{
-			i++;
-			continue;
-		}
-		if (input[i] == '>' && input[i + 1] == '>')
-		{
-			err = check_after_operator(input, i + 2);
-			if (err != SYNTAX_OK)
-				return (err);
-			i += 2;
-			continue;
-		}
-		else if (input[i] == '<' && input[i + 1] == '<')
-		{
-			err = check_after_operator(input, i + 2);
-			if (err != SYNTAX_OK)
-				return (err);
-			i += 2;
-			continue;
-		}
-		else if (input[i] == '>')
-		{
-			err = check_after_operator(input, i + 1);
-			if (err != SYNTAX_OK)
-				return (err);
-			i++;
-			continue;
-		}
-		else if (input[i] == '<')
-		{
-			err = check_after_operator(input, i + 1);
-			if (err != SYNTAX_OK)
-				return (err);
-			i++;
-			continue;
-		}
-		i++;
-	}
-	return(SYNTAX_OK);
-}
-
-t_syntax_error	check_quotes(const char *input)
-{
-	 t_quote_state   state;
-    int             i;
-
-    state = STATE_NONE;
-    i = 0;
-    while (input[i] != '\0')
-    {
-        if (state == STATE_NONE && input[i] == '"')
-            state = STATE_DOUBLE;
-        else if (state == STATE_DOUBLE && input[i] == '"')
-            state = STATE_NONE;
-		if (state == STATE_NONE && input[i] == '\'')
-            state = STATE_SINGLE;
-        else if (state == STATE_SINGLE && input[i] == '\'')
-            state = STATE_NONE;
-        i++;
-    }
-    if (state == STATE_DOUBLE)
-        return (SYNTAX_UNCLOSED_DOUBLE_QUOTE);
-	else if (state == STATE_SINGLE)
-        return (SYNTAX_UNCLOSED_SINGLE_QUOTE);
-    return (SYNTAX_OK);
-}
-
-t_syntax_error  validate_input(const char *input)
-{
-	t_syntax_error err;
-
-	if(!input)
+	if (shell->line == NULL)
 		return (SYNTAX_OK);
 
-	err = check_pipes(input);
+	err = check_pipes(shell->line);
 	if (err != SYNTAX_OK)
-        return (err);	
-	err = check_redirections(input);
+		return (err);
+	err = check_redirections(shell->line);
 	if (err != SYNTAX_OK)
-        return (err);	
-    err = check_quotes(input);
+		return (err);
+	err = check_quotes(shell->line);
 	if (err != SYNTAX_OK)
-        return (err);	
+		return (err);
 
-	return(SYNTAX_OK);
+	return (SYNTAX_OK);
 }
 
+const char	*input_readline(t_shell	*shell)
+{
+	if (shell->interactive)
+		shell->line = readline("minishell$ ");
+	else
+		shell->line = read_noninteractive_line();
+	if (shell->line == NULL)
+		return (NULL);
+	if (shell->interactive && shell->line[0] != '\0')
+		add_history(shell->line);
+	return (shell->line);
+}
 
-
-
-
-
-
+int	input_handle_error(t_syntax_error	err, t_shell *shell)
+{
+	if (err != SYNTAX_OK)
+	{
+		printf("minishell: %s\n", g_syntax_errors[err]);
+		shell->exit_code = 258;
+		free(shell->line);
+		shell->line = NULL;
+		return (1);
+	}
+	return (0);
+}

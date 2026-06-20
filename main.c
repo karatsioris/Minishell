@@ -1,131 +1,66 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "unistd.h"
-#include <readline/readline.h>
-#include <readline/history.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkaratsi <kkaratsi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/18 14:38:58 by kkaratsi          #+#    #+#             */
+/*   Updated: 2026/06/18 17:34:16 by kkaratsi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-
-#include "token.h"
-#include "libft/libft.h"
-
-#include "shell.h"
-#include "parse.h"
 #include "validate.h"
+#include "runtime.h"
 #include "executer.h"
 #include "builtin.h"
 #include "signals.h"
+#include <readline/readline.h>
 
-
-
-static const char *g_syntax_errors[] = {
-    [SYNTAX_OK]                   = NULL,
-    [SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
-    [SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
-    [SYNTAX_PIPE_AT_START]        = "syntax error near unexpected token `|'",
-    [SYNTAX_PIPE_AT_END]          = "syntax error near unexpected token `|'",
-    [SYNTAX_DOUBLE_PIPE]          = "syntax error near unexpected token `||'",
-    [SYNTAX_INVALID_OPERATOR]     = "syntax error near unexpected token",
-};
-
-static char	*read_input_line(int interactive)
+int	main(int argc, char **argv, char **envp)
 {
-	char	*line;
-	size_t	bufsize;
-	ssize_t	len;
+	t_shell			shell;
+	t_token			*all_token;
+	t_node			*ast;
+	int				token_count;
 
-	if (interactive)
-		return (readline("minishell$ "));
-	line = NULL;
-	bufsize = 0;
-	len = getline(&line, &bufsize, stdin);
-	if (len == -1)
-	{
-		free(line);
-		return (NULL);
-	}
-	if (len > 0 && line[len - 1] == '\n')
-		line[len - 1] = '\0';
-	return (line);
-}
-
-int main(int argc, char **argv, char **envp)
-{
-    t_shell		shell;
-	t_lexer		lexer;
-	t_token		*all_token;
-	t_node		*ast;
-	int			token_count;
-	int			interactive;
-	t_syntax_error	err;
-
-    (void)envp;
-    (void)argv;
-    (void)argc;
-	shell.exit_code = 0;
-	shell.running = 1;
-	shell.envp  = dup_envp(envp);
-	if (!shell.envp)
-	{
-		write(STDERR_FILENO, "minishell: failed to copy environment\n", 38);
-		return (1);
-	}
-	shell.line = NULL;
+	(void)argv;
+	(void)argc;
 	all_token = NULL;
 	ast = NULL;
+	token_count = 0;
+	initialization(&shell, envp);
+	if (!shell.envp)
+	{
+		write(STDERR_FILENO, "minishell: failed to copy environment\n", 39);
+		return (1);
+	}
 	rl_catch_signals = 0;
 	rl_catch_sigwinch = 0;
-	interactive = isatty(STDIN_FILENO);
 	setup_interactive_signals();
-
-    while (shell.running)
-    {
+	while (shell.running)
+	{
 		signal_reset();
-        shell.line = read_input_line(interactive);
-
-		if (shell.line == NULL || (signal_was_interrupted() && shell.line[0] == '\0'))
+		if (input_readline(&shell) == NULL)
 		{
 			if (signal_was_interrupted())
 			{
 				shell.exit_code = 130;
 				signal_reset();
-				free(shell.line);
-				shell.line = NULL;
-				continue;
+				continue ;
 			}
-			break;
+			break ;
 		}
-		err = validate_input(shell.line);
-		if (err != SYNTAX_OK)
-		{
-			fprintf(stderr, "minishell: %s\n", g_syntax_errors[err]);
-			shell.exit_code = 258;
-			free(shell.line);
-			shell.line = NULL;
-			continue;
-		}
-		if (interactive && shell.line[0] != '\0')
-			add_history(shell.line);
-
-		init_lexer(&lexer, shell.line);
-		all_token = array_of_token(&lexer, &shell, &token_count);
+		if (input_handle_error(input_validate(&shell), &shell))
+			continue ;
+		all_token = array_of_token(&shell, &token_count);
 		ast = parse_token(all_token, token_count);
 		setup_execution_signals();
 		shell.exit_code = execute_ast(ast, &shell);
 		setup_interactive_signals();
-		free_tokens(all_token, token_count);
-		all_token = NULL;
-		free_ast(ast);
-		ast = NULL;
-        free(shell.line);
-		shell.line = NULL;
-    }
-	free_tokens(all_token, token_count);
-	all_token = NULL;
-	free_ast(ast);
-	ast = NULL;
-	free(shell.line);
-	shell.line = NULL;
+		cleanup(&shell, &all_token, token_count, &ast);
+	}
+	cleanup(&shell, &all_token, token_count, &ast);
 	free_envp(shell.envp);
-	shell.envp = NULL;
-    return (shell.exit_code);
+	return (shell.exit_code);
 }
