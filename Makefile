@@ -16,7 +16,8 @@ SRCS    =   main.c \
             src/executer/builtin_env_set.c \
             src/executer/builtin_env_dup.c \
             src/executer/builtin_validators.c \
-            src/executer/builtin_cd_exit.c \
+            src/executer/builtin_cd.c \
+            src/executer/builtin_exit.c \
             src/executer/builtin_export_print.c \
             src/executer/builtin_export_unset.c \
             src/executer/builtin_child.c \

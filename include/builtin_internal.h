@@ -30,8 +30,10 @@ int		unset_env_value(t_shell *shell, const char *name);
 int		is_valid_exit_arg(const char *arg);
 int		is_valid_identifier(const char *name);
 
-// builtin_cd_exit.c
+// builtin_cd.c
 int		builtin_cd(t_node *node, t_shell *shell);
+
+// builtin_exit.c
 int		builtin_exit(t_node *node, t_shell *shell);
 
 // builtin_export_print.c
