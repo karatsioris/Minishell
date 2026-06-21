@@ -16,9 +16,15 @@
 # include "token.h"
 # include "shell.h"
 
+typedef struct s_expand_ctx
+{
+	int				index;
+	t_quote_state	state;
+	char			quote_char;
+}	t_expand_ctx;
+
 int		apply_expansions(t_token *tokens, int count, t_shell *shell);
-char	*expand_token_value(const char *value, t_shell *shell,
-			t_quote_state quote);
+char	*expand_token_value(const char *raw, t_shell *shell);
 char	*expand_dollar(const char *value, int *index, t_shell *shell,
 			char *result);
 char	*lookup_env_value(char **envp, const char *name, int name_len);

@@ -25,29 +25,38 @@ static int	append_literal(char **result, const char *value, int *index)
 	return (1);
 }
 
-char	*expand_token_value(const char *value, t_shell *shell,
-		t_quote_state quote)
+static char	*expand_step(const char *raw, t_expand_ctx *ctx, t_shell *shell,
+		char *result)
 {
-	char	*result;
-	int		index;
-
-	if (!value)
+	if (is_open_or_close_quote(raw[ctx->index], ctx->state, ctx->quote_char))
+	{
+		update_quote_state(raw[ctx->index], &ctx->state, &ctx->quote_char);
+		ctx->index++;
+		return (result);
+	}
+	if (raw[ctx->index] == '$' && ctx->state != STATE_SINGLE && shell)
+		return (expand_dollar(raw, &ctx->index, shell, result));
+	if (!append_literal(&result, raw, &ctx->index))
 		return (NULL);
-	if (quote == STATE_SINGLE || !shell)
-		return (ft_strdup(value));
+	return (result);
+}
+
+char	*expand_token_value(const char *raw, t_shell *shell)
+{
+	char			*result;
+	t_expand_ctx	ctx;
+
+	if (!raw)
+		return (NULL);
 	result = ft_strdup("");
 	if (!result)
 		return (NULL);
-	index = 0;
-	while (value[index])
+	ctx.index = 0;
+	ctx.state = STATE_NONE;
+	ctx.quote_char = '\0';
+	while (raw[ctx.index])
 	{
-		if (value[index] != '$')
-		{
-			if (!append_literal(&result, value, &index))
-				return (NULL);
-			continue ;
-		}
-		result = expand_dollar(value, &index, shell, result);
+		result = expand_step(raw, &ctx, shell, result);
 		if (!result)
 			return (NULL);
 	}
@@ -58,7 +67,7 @@ static int	expand_one_token(t_token *token, t_shell *shell)
 {
 	char	*expanded;
 
-	expanded = expand_token_value(token->value, shell, token->quote);
+	expanded = expand_token_value(token->value, shell);
 	if (expanded)
 	{
 		free(token->value);

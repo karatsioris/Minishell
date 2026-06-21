@@ -81,6 +81,5 @@ int							is_open_or_close_quote(char c, t_quote_state state,
 								char quote_char);
 void						update_quote_state(char c, t_quote_state *state,
 								char *quote_char);
-char						*remove_quotes(const char *raw);
 
 #endif
