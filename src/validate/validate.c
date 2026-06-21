@@ -99,8 +99,10 @@ int	input_handle_error(t_syntax_error	err, t_shell *shell)
 {
 	if (err != SYNTAX_OK)
 	{
-		printf("minishell: %s\n", g_syntax_errors[err]);
-		shell->exit_code = 258;
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd((char *)g_syntax_errors[err], STDERR_FILENO);
+		ft_putstr_fd("\n", STDERR_FILENO);
+		shell->exit_code = 2;
 		free(shell->line);
 		shell->line = NULL;
 		return (1);
