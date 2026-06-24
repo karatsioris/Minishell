@@ -54,16 +54,6 @@ char	*read_noninteractive_line(void)
 	return (line);
 }
 
-static const char	*g_syntax_errors[] = {
-[SYNTAX_OK] = NULL,
-[SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
-[SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
-[SYNTAX_PIPE_AT_START] = "syntax error near unexpected token `|'",
-[SYNTAX_PIPE_AT_END] = "syntax error near unexpected token `|'",
-[SYNTAX_DOUBLE_PIPE] = "syntax error near unexpected token `||'",
-[SYNTAX_INVALID_OPERATOR] = "syntax error near unexpected token",
-};
-
 t_syntax_error	input_validate(t_shell	*shell)
 {
 	t_syntax_error	err;
@@ -97,10 +87,20 @@ const char	*input_readline(t_shell	*shell)
 
 int	input_handle_error(t_syntax_error	err, t_shell *shell)
 {
+	static const char	*syntax_errors[] = {
+	[SYNTAX_OK] = NULL,
+	[SYNTAX_UNCLOSED_SINGLE_QUOTE] = "syntax error: unclosed single quote",
+	[SYNTAX_UNCLOSED_DOUBLE_QUOTE] = "syntax error: unclosed double quote",
+	[SYNTAX_PIPE_AT_START] = "syntax error near unexpected token `|'",
+	[SYNTAX_PIPE_AT_END] = "syntax error near unexpected token `|'",
+	[SYNTAX_DOUBLE_PIPE] = "syntax error near unexpected token `||'",
+	[SYNTAX_INVALID_OPERATOR] = "syntax error near unexpected token",
+	};
+
 	if (err != SYNTAX_OK)
 	{
 		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd((char *)g_syntax_errors[err], STDERR_FILENO);
+		ft_putstr_fd((char *)syntax_errors[err], STDERR_FILENO);
 		ft_putstr_fd("\n", STDERR_FILENO);
 		shell->exit_code = 2;
 		free(shell->line);

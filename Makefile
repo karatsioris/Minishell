@@ -7,6 +7,7 @@ SRCS    =   main.c \
             src/executer/executer.c \
             src/executer/executer_path.c \
             src/executer/executer_redir.c \
+            src/executer/executer_heredoc.c \
             src/executer/executer_exec.c \
             src/executer/executer_pipe.c \
             src/executer/executer_dispatch.c \
