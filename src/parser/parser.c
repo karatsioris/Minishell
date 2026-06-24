@@ -70,6 +70,8 @@ t_redir	*build_redir_list(t_token *tokens, int start, int end)
 		{
 			r = new_redir(get_redir_type(tokens[i]),
 					tokens[i + 1].value);
+			if (r && r->type == HEREDOC)
+				r->expand = (tokens[i + 1].quote == STATE_NONE);
 			add_redir_back(&head, r);
 			i++;
 		}

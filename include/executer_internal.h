@@ -25,6 +25,7 @@ typedef struct s_fds
 }	t_fds;
 
 char	*resolve_command_path(const char *command, char **envp);
+int		apply_heredoc(const char *delimiter, int expand, t_shell *shell);
 int		apply_redirections(t_node *node, t_shell *shell);
 int		run_command_node(t_node *node, t_shell *shell);
 int		run_pipe_node(t_node *node, t_shell *shell, t_fds fds);

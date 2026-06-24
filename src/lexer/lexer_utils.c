@@ -12,15 +12,6 @@
 
 #include "token.h"
 
-static const t_token_descriptor	g_token_table[] = {
-{"<<",	TOKEN_HEREDOC,		2},
-{">>",	TOKEN_APPEND,		2},
-{"|",	TOKEN_PIPE,			1},
-{"<",	TOKEN_REDIR_IN,		1},
-{">",	TOKEN_REDIR_OUT,	1},
-{NULL,	TOKEN_EOF,			0}
-};
-
 int	is_space(char c)
 {
 	return (c == ' ' || c == '\t' || c == '\n'
@@ -29,17 +20,24 @@ int	is_space(char c)
 
 const t_token_descriptor	*match_operator(const char *input)
 {
-	int	i;
+	static const t_token_descriptor	token_table[] = {
+	{"<<",	TOKEN_HEREDOC,		2},
+	{">>",	TOKEN_APPEND,		2},
+	{"|",	TOKEN_PIPE,			1},
+	{"<",	TOKEN_REDIR_IN,		1},
+	{">",	TOKEN_REDIR_OUT,	1},
+	{NULL,	TOKEN_EOF,			0}
+	};
+	const t_token_descriptor		*entry;
 
-	i = 0;
+	entry = token_table;
 	if (!input)
 		return (NULL);
-	while (g_token_table[i].text != NULL)
+	while (entry->text != NULL)
 	{
-		if (ft_strncmp(input, g_token_table[i].text,
-				g_token_table[i].length) == 0)
-			return (&g_token_table[i]);
-		i++;
+		if (ft_strncmp(input, entry->text, entry->length) == 0)
+			return (entry);
+		entry++;
 	}
 	return (NULL);
 }

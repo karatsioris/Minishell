@@ -46,6 +46,7 @@ t_redir	*new_redir(t_redir_type type, char *file)
 		return (NULL);
 	redir->type = type;
 	redir->file = ft_strdup(file);
+	redir->expand = 0;
 	redir->next = NULL;
 	return (redir);
 }
